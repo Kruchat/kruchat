@@ -3361,7 +3361,7 @@
                                             <strong>ประเภท:</strong> ${skill.category} |
                                             <strong>ระดับ:</strong> ${skill.level}/5
                                         </p>
-                                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-top: 10px;">${skill.description || '-'}</p>
+                                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-top: 10px;">${skill.evidence || '-'}</p>
                                     </div>
                                 `).join('')}
                             </div>
@@ -4051,7 +4051,8 @@
             document.getElementById('skillName').value = skill.name;
             document.getElementById('skillCategory').value = skill.category;
             document.getElementById('skillLevel').value = skill.level;
-            document.getElementById('skillDescription').value = skill.description || '';
+            document.getElementById('skillEvidence').value = skill.evidence || '';
+            document.getElementById('levelValue').textContent = skill.level;
 
             modal.classList.add('show');
 
@@ -4203,7 +4204,7 @@
                         name: document.getElementById('skillName').value,
                         category: document.getElementById('skillCategory').value,
                         level: parseInt(document.getElementById('skillLevel').value),
-                        description: document.getElementById('skillDescription').value
+                        evidence: document.getElementById('skillEvidence').value
                     };
                 }
                 currentEditId = null;
