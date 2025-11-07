@@ -561,6 +561,34 @@
             transform: scale(0.95);
         }
 
+        /* Edit Button */
+        .edit-btn {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--border-radius-md);
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-left: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .edit-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+            transform: scale(1.05);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .edit-btn:active {
+            transform: scale(0.95);
+        }
+
         /* Progress Bar */
         .progress-container {
             margin: 12px 0;
@@ -1894,6 +1922,35 @@
             </div>
 
             <div class="settings-section">
+                <div class="settings-section-title">ข้อมูลส่วนตัว</div>
+
+                <div class="settings-item" style="flex-direction: column; align-items: stretch; gap: 15px;">
+                    <button class="btn btn-primary" onclick="openTeacherInfoModal()" style="width: 100%;">
+                        <i data-lucide="user" style="width: 16px; height: 16px;"></i>
+                        จัดการข้อมูลส่วนตัวครู
+                    </button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">สำรองข้อมูล</div>
+
+                <div class="settings-item" style="flex-direction: column; align-items: stretch; gap: 15px;">
+                    <button class="btn btn-primary" onclick="backupData()" style="width: 100%;">
+                        <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                        สำรองข้อมูล (Backup)
+                    </button>
+                    <button class="btn btn-secondary" onclick="restoreData()" style="width: 100%;">
+                        <i data-lucide="upload" style="width: 16px; height: 16px;"></i>
+                        กู้คืนข้อมูล (Restore)
+                    </button>
+                    <p style="font-size: 13px; color: var(--text-light); margin: 0;">
+                        💡 แนะนำให้สำรองข้อมูลเป็นประจำเพื่อป้องกันข้อมูลสูญหาย
+                    </p>
+                </div>
+            </div>
+
+            <div class="settings-section">
                 <div class="settings-section-title">ธีม</div>
 
                 <div class="settings-item">
@@ -1964,6 +2021,9 @@
         let currentFileUpload = null;
         let currentTags = []; // Tags for current form
         let allTags = []; // All unique tags across all items
+        let currentEditId = null; // ID of item being edited
+        let currentEditType = null; // Type of item being edited (activity, goal, idea, skill)
+        let teacherInfo = {}; // Teacher personal information
         let notifications = [];
         let notificationSettings = {
             goalDeadline: true,
@@ -1989,6 +2049,7 @@
             loadData();
             loadTheme();
             loadSettings();
+            loadTeacherInfo();
             initSampleData();
             updateAllTags();
             calculateNotifications();
@@ -3037,7 +3098,12 @@
                             <div class="card-title">${activity.title}</div>
                             <div class="card-date">${formatDate(activity.date)}</div>
                         </div>
-                        <button class="delete-btn" onclick="deleteActivity(${activity.id})">×</button>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="edit-btn" onclick="editActivity(${activity.id})">
+                                <i data-lucide="edit-2" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="delete-btn" onclick="deleteActivity(${activity.id})">×</button>
+                        </div>
                     </div>
                     <div class="card-content">${activity.content}</div>
                     ${activity.tags && activity.tags.length > 0 ? `
@@ -3081,7 +3147,12 @@
                             <div class="card-title">${goal.title}</div>
                             <div class="card-date">กำหนดเสร็จ: ${formatDate(goal.dueDate)}</div>
                         </div>
-                        <button class="delete-btn" onclick="deleteGoal(${goal.id})">×</button>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="edit-btn" onclick="editGoal(${goal.id})">
+                                <i data-lucide="edit-2" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="delete-btn" onclick="deleteGoal(${goal.id})">×</button>
+                        </div>
                     </div>
                     <div class="card-content">${goal.description}</div>
                     ${goal.tags && goal.tags.length > 0 ? `
@@ -3130,7 +3201,12 @@
                             <div class="card-title">${idea.title}</div>
                             <div class="card-date">${formatDate(idea.date)}</div>
                         </div>
-                        <button class="delete-btn" onclick="deleteIdea(${idea.id})">×</button>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="edit-btn" onclick="editIdea(${idea.id})">
+                                <i data-lucide="edit-2" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="delete-btn" onclick="deleteIdea(${idea.id})">×</button>
+                        </div>
                     </div>
                     <div class="card-content">${idea.content}</div>
                     ${idea.tags && idea.tags.length > 0 ? `
@@ -3171,7 +3247,12 @@
                                 ).join('')}
                             </div>
                         </div>
-                        <button class="delete-btn" onclick="deleteSkill(${skill.id})">×</button>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="edit-btn" onclick="editSkill(${skill.id})">
+                                <i data-lucide="edit-2" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="delete-btn" onclick="deleteSkill(${skill.id})">×</button>
+                        </div>
                     </div>
                     <div class="card-content">${skill.evidence}</div>
                     ${skill.tags && skill.tags.length > 0 ? `
@@ -3204,6 +3285,19 @@
                             <h1 style="color: #6366f1; font-size: 28px; margin: 0;">📚 รายงานการพัฒนาตนเองของครู</h1>
                             <p style="color: #64748b; margin-top: 10px;">สร้างเมื่อ: ${date}</p>
                         </div>
+
+                        ${teacherInfo.name ? `
+                            <div style="background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #6366f1;">
+                                <h2 style="color: #334155; font-size: 20px; margin-bottom: 15px;">👤 ข้อมูลครู</h2>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                    ${teacherInfo.name ? `<div><strong>ชื่อ-นามสกุล:</strong> ${teacherInfo.name}</div>` : ''}
+                                    ${teacherInfo.school ? `<div><strong>โรงเรียน:</strong> ${teacherInfo.school}</div>` : ''}
+                                    ${teacherInfo.position ? `<div><strong>ตำแหน่ง:</strong> ${teacherInfo.position}</div>` : ''}
+                                    ${teacherInfo.email ? `<div><strong>อีเมล:</strong> ${teacherInfo.email}</div>` : ''}
+                                    ${teacherInfo.phone ? `<div><strong>เบอร์โทร:</strong> ${teacherInfo.phone}</div>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
 
                         <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
                             <h2 style="color: #334155; font-size: 20px; margin-bottom: 15px;">📊 สรุปภาพรวม</h2>
@@ -3373,6 +3467,143 @@
             } catch (error) {
                 console.error('Excel Export Error:', error);
                 alert('เกิดข้อผิดพลาดในการ Export Excel');
+            }
+        }
+
+        // Backup & Restore Functions
+        function backupData() {
+            try {
+                const backupData = {
+                    version: '1.0',
+                    date: new Date().toISOString(),
+                    teacherInfo,
+                    activities,
+                    goals,
+                    ideas,
+                    skills,
+                    notificationSettings
+                };
+
+                const dataStr = JSON.stringify(backupData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `teacher-data-backup_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+
+                alert('💾 Backup ข้อมูลสำเร็จ!');
+            } catch (error) {
+                console.error('Backup Error:', error);
+                alert('❌ เกิดข้อผิดพลาดในการ Backup ข้อมูล');
+            }
+        }
+
+        function restoreData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const backupData = JSON.parse(event.target.result);
+
+                        if (confirm('⚠️ การกู้คืนข้อมูลจะแทนที่ข้อมูลปัจจุบันทั้งหมด\nคุณต้องการดำเนินการต่อหรือไม่?')) {
+                            // Restore data
+                            if (backupData.teacherInfo) teacherInfo = backupData.teacherInfo;
+                            if (backupData.activities) activities = backupData.activities;
+                            if (backupData.goals) goals = backupData.goals;
+                            if (backupData.ideas) ideas = backupData.ideas;
+                            if (backupData.skills) skills = backupData.skills;
+                            if (backupData.notificationSettings) notificationSettings = backupData.notificationSettings;
+
+                            // Save to localStorage
+                            saveData();
+                            localStorage.setItem('teacherInfo', JSON.stringify(teacherInfo));
+                            localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
+
+                            // Refresh UI
+                            updateAllTags();
+                            calculateNotifications();
+                            updateStats();
+                            renderAll();
+
+                            alert('✅ กู้คืนข้อมูลสำเร็จ!');
+                        }
+                    } catch (error) {
+                        console.error('Restore Error:', error);
+                        alert('❌ ไฟล์ Backup ไม่ถูกต้อง กรุณาเลือกไฟล์ Backup ที่ถูกต้อง');
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            input.click();
+        }
+
+        // Teacher Info Functions
+        function openTeacherInfoModal() {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = '👤 ข้อมูลส่วนตัวครู';
+            modalBody.innerHTML = `
+                <form onsubmit="saveTeacherInfo(event)">
+                    <div class="form-group">
+                        <label class="form-label">ชื่อ-นามสกุล *</label>
+                        <input type="text" class="form-input" id="teacherName" value="${teacherInfo.name || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">โรงเรียน</label>
+                        <input type="text" class="form-input" id="teacherSchool" value="${teacherInfo.school || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ตำแหน่ง</label>
+                        <input type="text" class="form-input" id="teacherPosition" value="${teacherInfo.position || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">อีเมล</label>
+                        <input type="email" class="form-input" id="teacherEmail" value="${teacherInfo.email || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">เบอร์โทรศัพท์</label>
+                        <input type="tel" class="form-input" id="teacherPhone" value="${teacherInfo.phone || ''}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                </form>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        function saveTeacherInfo(e) {
+            e.preventDefault();
+
+            teacherInfo = {
+                name: document.getElementById('teacherName').value,
+                school: document.getElementById('teacherSchool').value,
+                position: document.getElementById('teacherPosition').value,
+                email: document.getElementById('teacherEmail').value,
+                phone: document.getElementById('teacherPhone').value
+            };
+
+            localStorage.setItem('teacherInfo', JSON.stringify(teacherInfo));
+            closeModal();
+            alert('✅ บันทึกข้อมูลส่วนตัวสำเร็จ!');
+        }
+
+        function loadTeacherInfo() {
+            const saved = localStorage.getItem('teacherInfo');
+            if (saved) {
+                teacherInfo = JSON.parse(saved);
             }
         }
 
@@ -3695,27 +3926,187 @@
             `;
         }
 
+        // Edit Functions
+        function editActivity(id) {
+            const activity = activities.find(a => a.id === id);
+            if (!activity) return;
+
+            currentEditId = id;
+            currentEditType = 'activity';
+            currentTags = activity.tags || [];
+            currentFileUpload = activity.attachment || null;
+
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = 'แก้ไขกิจกรรมการพัฒนา';
+            modalBody.innerHTML = getActivityForm();
+
+            // Fill form with existing data
+            document.getElementById('activityTitle').value = activity.title;
+            document.getElementById('activityType').value = activity.type;
+            document.getElementById('activityHours').value = activity.hours;
+            document.getElementById('activityDate').value = activity.date;
+            document.getElementById('activityContent').value = activity.content;
+
+            // Show tags
+            updateTagPills();
+
+            // Show file preview if exists
+            if (currentFileUpload) {
+                const fileIcon = getFileIcon(currentFileUpload.name);
+                const sizeText = currentFileUpload.size > 1024 * 1024
+                    ? `${(currentFileUpload.size / (1024 * 1024)).toFixed(2)} MB`
+                    : `${(currentFileUpload.size / 1024).toFixed(1)} KB`;
+
+                document.getElementById('filePreview').innerHTML = `
+                    <div class="file-preview">
+                        <span><i data-lucide="${fileIcon}" style="width: 16px; height: 16px;"></i> ${currentFileUpload.name} (${sizeText})</span>
+                        <button type="button" class="file-preview-remove" onclick="removeFileUpload()">×</button>
+                    </div>
+                `;
+            }
+
+            modal.classList.add('show');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function editGoal(id) {
+            const goal = goals.find(g => g.id === id);
+            if (!goal) return;
+
+            currentEditId = id;
+            currentEditType = 'goal';
+            currentTags = goal.tags || [];
+
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = 'แก้ไขเป้าหมายการพัฒนา';
+            modalBody.innerHTML = getGoalForm();
+
+            document.getElementById('goalTitle').value = goal.title;
+            document.getElementById('goalType').value = goal.type;
+            document.getElementById('goalDescription').value = goal.description;
+            document.getElementById('goalDueDate').value = goal.dueDate;
+            document.getElementById('goalProgress').value = goal.progress;
+            document.getElementById('goalStatus').value = goal.status;
+
+            updateTagPills();
+
+            modal.classList.add('show');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function editIdea(id) {
+            const idea = ideas.find(i => i.id === id);
+            if (!idea) return;
+
+            currentEditId = id;
+            currentEditType = 'idea';
+            currentTags = idea.tags || [];
+
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = 'แก้ไขไอเดียและบันทึก';
+            modalBody.innerHTML = getIdeaForm();
+
+            document.getElementById('ideaTitle').value = idea.title;
+            document.getElementById('ideaType').value = idea.type;
+            document.getElementById('ideaContent').value = idea.content;
+
+            updateTagPills();
+
+            modal.classList.add('show');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function editSkill(id) {
+            const skill = skills.find(s => s.id === id);
+            if (!skill) return;
+
+            currentEditId = id;
+            currentEditType = 'skill';
+
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = 'แก้ไขทักษะและสมรรถนะ';
+            modalBody.innerHTML = getSkillForm();
+
+            document.getElementById('skillName').value = skill.name;
+            document.getElementById('skillCategory').value = skill.category;
+            document.getElementById('skillLevel').value = skill.level;
+            document.getElementById('skillDescription').value = skill.description || '';
+
+            modal.classList.add('show');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
         // Save Activity
         function saveActivity(e) {
             e.preventDefault();
-            const activity = {
-                id: Date.now(),
-                title: document.getElementById('activityTitle').value,
-                type: document.getElementById('activityType').value,
-                hours: parseFloat(document.getElementById('activityHours').value),
-                date: document.getElementById('activityDate').value,
-                content: document.getElementById('activityContent').value,
-                tags: [...currentTags]
-            };
 
-            // Add attachment if exists
-            if (currentFileUpload) {
-                activity.attachment = currentFileUpload;
-                currentFileUpload = null;
+            if (currentEditId && currentEditType === 'activity') {
+                // Edit existing activity
+                const index = activities.findIndex(a => a.id === currentEditId);
+                if (index !== -1) {
+                    activities[index] = {
+                        ...activities[index],
+                        title: document.getElementById('activityTitle').value,
+                        type: document.getElementById('activityType').value,
+                        hours: parseFloat(document.getElementById('activityHours').value),
+                        date: document.getElementById('activityDate').value,
+                        content: document.getElementById('activityContent').value,
+                        tags: [...currentTags]
+                    };
+
+                    // Update attachment if changed
+                    if (currentFileUpload) {
+                        activities[index].attachment = currentFileUpload;
+                    }
+                }
+                currentEditId = null;
+                currentEditType = null;
+            } else {
+                // Add new activity
+                const activity = {
+                    id: Date.now(),
+                    title: document.getElementById('activityTitle').value,
+                    type: document.getElementById('activityType').value,
+                    hours: parseFloat(document.getElementById('activityHours').value),
+                    date: document.getElementById('activityDate').value,
+                    content: document.getElementById('activityContent').value,
+                    tags: [...currentTags]
+                };
+
+                // Add attachment if exists
+                if (currentFileUpload) {
+                    activity.attachment = currentFileUpload;
+                }
+
+                activities.push(activity);
             }
 
-            activities.push(activity);
             currentTags = [];
+            currentFileUpload = null;
             saveData();
             checkStorageUsage();
             closeModal();
@@ -3724,17 +4115,39 @@
         // Save Goal
         function saveGoal(e) {
             e.preventDefault();
-            const goal = {
-                id: Date.now(),
-                title: document.getElementById('goalTitle').value,
-                type: document.getElementById('goalType').value,
-                description: document.getElementById('goalDescription').value,
-                dueDate: document.getElementById('goalDueDate').value,
-                progress: parseInt(document.getElementById('goalProgress').value),
-                status: document.getElementById('goalStatus').value,
-                tags: [...currentTags]
-            };
-            goals.push(goal);
+
+            if (currentEditId && currentEditType === 'goal') {
+                // Edit existing goal
+                const index = goals.findIndex(g => g.id === currentEditId);
+                if (index !== -1) {
+                    goals[index] = {
+                        ...goals[index],
+                        title: document.getElementById('goalTitle').value,
+                        type: document.getElementById('goalType').value,
+                        description: document.getElementById('goalDescription').value,
+                        dueDate: document.getElementById('goalDueDate').value,
+                        progress: parseInt(document.getElementById('goalProgress').value),
+                        status: document.getElementById('goalStatus').value,
+                        tags: [...currentTags]
+                    };
+                }
+                currentEditId = null;
+                currentEditType = null;
+            } else {
+                // Add new goal
+                const goal = {
+                    id: Date.now(),
+                    title: document.getElementById('goalTitle').value,
+                    type: document.getElementById('goalType').value,
+                    description: document.getElementById('goalDescription').value,
+                    dueDate: document.getElementById('goalDueDate').value,
+                    progress: parseInt(document.getElementById('goalProgress').value),
+                    status: document.getElementById('goalStatus').value,
+                    tags: [...currentTags]
+                };
+                goals.push(goal);
+            }
+
             currentTags = [];
             saveData();
             closeModal();
@@ -3743,15 +4156,35 @@
         // Save Idea
         function saveIdea(e) {
             e.preventDefault();
-            const idea = {
-                id: Date.now(),
-                title: document.getElementById('ideaTitle').value,
-                type: document.getElementById('ideaType').value,
-                date: document.getElementById('ideaDate').value,
-                content: document.getElementById('ideaContent').value,
-                tags: [...currentTags]
-            };
-            ideas.push(idea);
+
+            if (currentEditId && currentEditType === 'idea') {
+                // Edit existing idea
+                const index = ideas.findIndex(i => i.id === currentEditId);
+                if (index !== -1) {
+                    ideas[index] = {
+                        ...ideas[index],
+                        title: document.getElementById('ideaTitle').value,
+                        type: document.getElementById('ideaType').value,
+                        date: document.getElementById('ideaDate').value,
+                        content: document.getElementById('ideaContent').value,
+                        tags: [...currentTags]
+                    };
+                }
+                currentEditId = null;
+                currentEditType = null;
+            } else {
+                // Add new idea
+                const idea = {
+                    id: Date.now(),
+                    title: document.getElementById('ideaTitle').value,
+                    type: document.getElementById('ideaType').value,
+                    date: document.getElementById('ideaDate').value,
+                    content: document.getElementById('ideaContent').value,
+                    tags: [...currentTags]
+                };
+                ideas.push(idea);
+            }
+
             currentTags = [];
             saveData();
             closeModal();
@@ -3760,7 +4193,24 @@
         // Save Skill
         function saveSkill(e) {
             e.preventDefault();
-            const skill = {
+
+            if (currentEditId && currentEditType === 'skill') {
+                // Edit existing skill
+                const index = skills.findIndex(s => s.id === currentEditId);
+                if (index !== -1) {
+                    skills[index] = {
+                        ...skills[index],
+                        name: document.getElementById('skillName').value,
+                        category: document.getElementById('skillCategory').value,
+                        level: parseInt(document.getElementById('skillLevel').value),
+                        description: document.getElementById('skillDescription').value
+                    };
+                }
+                currentEditId = null;
+                currentEditType = null;
+            } else {
+                // Add new skill
+                const skill = {
                 id: Date.now(),
                 name: document.getElementById('skillName').value,
                 category: document.getElementById('skillCategory').value,
