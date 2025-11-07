@@ -2479,17 +2479,30 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Check file size (2MB limit)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('ไฟล์มีขนาดใหญ่เกิน 2MB กรุณาเลือกไฟล์ที่เล็กกว่า');
+            // Check file size (20MB limit)
+            if (file.size > 20 * 1024 * 1024) {
+                alert('ไฟล์มีขนาดใหญ่เกิน 20MB กรุณาเลือกไฟล์ที่เล็กกว่า');
                 event.target.value = '';
                 return;
             }
 
             // Check file type
-            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-            if (!allowedTypes.includes(file.type)) {
-                alert('รองรับเฉพาะไฟล์ PDF และรูปภาพ (JPG, PNG) เท่านั้น');
+            const allowedTypes = [
+                'application/pdf',
+                'image/jpeg', 'image/png', 'image/jpg',
+                'application/msword', // .doc
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+                'application/vnd.ms-excel', // .xls
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+                'application/vnd.ms-powerpoint', // .ppt
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation' // .pptx
+            ];
+
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+
+            if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+                alert('รองรับเฉพาะไฟล์ PDF, รูปภาพ (JPG, PNG) และเอกสาร (Word, Excel, PowerPoint) เท่านั้น');
                 event.target.value = '';
                 return;
             }
@@ -2503,16 +2516,44 @@
                     data: e.target.result
                 };
 
-                // Show preview
+                // Show preview with file icon
+                const fileIcon = getFileIcon(file.name);
                 const previewContainer = document.getElementById('filePreview');
+                const sizeText = file.size > 1024 * 1024
+                    ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
+                    : `${(file.size / 1024).toFixed(1)} KB`;
+
                 previewContainer.innerHTML = `
                     <div class="file-preview">
-                        <span>📎 ${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                        <span><i data-lucide="${fileIcon}" style="width: 16px; height: 16px;"></i> ${file.name} (${sizeText})</span>
                         <button type="button" class="file-preview-remove" onclick="removeFileUpload()">×</button>
                     </div>
                 `;
+
+                // Reinitialize Lucide icons
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
             };
             reader.readAsDataURL(file);
+        }
+
+        // Get file icon based on file extension
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'pdf': 'file-text',
+                'jpg': 'image',
+                'jpeg': 'image',
+                'png': 'image',
+                'doc': 'file-text',
+                'docx': 'file-text',
+                'xls': 'file-spreadsheet',
+                'xlsx': 'file-spreadsheet',
+                'ppt': 'presentation',
+                'pptx': 'presentation'
+            };
+            return iconMap[ext] || 'file';
         }
 
         function removeFileUpload() {
@@ -2527,6 +2568,64 @@
             link.href = attachment.data;
             link.download = attachment.name;
             link.click();
+        }
+
+        // View attachment with preview
+        function viewAttachment(attachment) {
+            const ext = attachment.name.split('.').pop().toLowerCase();
+            const isImage = ['jpg', 'jpeg', 'png'].includes(ext);
+            const isPDF = ext === 'pdf';
+
+            let previewContent = '';
+
+            if (isImage) {
+                previewContent = `
+                    <div style="text-align: center; max-height: 60vh; overflow: auto;">
+                        <img src="${attachment.data}" alt="${attachment.name}"
+                             style="max-width: 100%; height: auto; border-radius: 8px;">
+                    </div>
+                `;
+            } else if (isPDF) {
+                previewContent = `
+                    <div style="height: 60vh; overflow: auto;">
+                        <iframe src="${attachment.data}"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;">
+                        </iframe>
+                    </div>
+                `;
+            } else {
+                // For other file types, show file info
+                const fileIcon = getFileIcon(attachment.name);
+                const sizeText = attachment.size > 1024 * 1024
+                    ? `${(attachment.size / (1024 * 1024)).toFixed(2)} MB`
+                    : `${(attachment.size / 1024).toFixed(1)} KB`;
+
+                previewContent = `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <i data-lucide="${fileIcon}" style="width: 64px; height: 64px; color: var(--primary-color); margin-bottom: 20px;"></i>
+                        <h3 style="margin: 10px 0; color: var(--text-dark);">${attachment.name}</h3>
+                        <p style="color: var(--text-light); font-size: 14px;">ขนาดไฟล์: ${sizeText}</p>
+                        <p style="color: var(--text-light); font-size: 14px; margin-top: 10px;">
+                            ไม่สามารถแสดงตัวอย่างไฟล์ประเภทนี้ได้<br>คลิก "ดาวน์โหลด" เพื่อบันทึกไฟล์
+                        </p>
+                    </div>
+                `;
+            }
+
+            showModal('ดูไฟล์แนบ', `
+                ${previewContent}
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="downloadAttachment(${JSON.stringify(attachment).replace(/"/g, '&quot;')})">
+                        <i data-lucide="download" style="width: 16px; height: 16px;"></i> ดาวน์โหลด
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">ปิด</button>
+                </div>
+            `);
+
+            // Reinitialize icons in modal
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         // Dashboard Functions
@@ -2866,7 +2965,12 @@
                     <div class="card-meta">
                         <span class="badge badge-primary">${activity.type}</span>
                         <span class="badge badge-success">${activity.hours} ชั่วโมง</span>
-                        ${activity.attachment ? `<span class="attachment-icon" onclick='downloadAttachment(${JSON.stringify(activity.attachment)})'>📎 ไฟล์แนบ</span>` : ''}
+                        ${activity.attachment ? `
+                            <span class="attachment-icon" onclick='viewAttachment(${JSON.stringify(activity.attachment)})'>
+                                <i data-lucide="${getFileIcon(activity.attachment.name)}" style="width: 14px; height: 14px;"></i>
+                                ${activity.attachment.name.length > 20 ? activity.attachment.name.substring(0, 20) + '...' : activity.attachment.name}
+                            </span>
+                        ` : ''}
                     </div>
                 </div>
             `).join('');
@@ -3332,11 +3436,11 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">แนบไฟล์ (PDF, รูปภาพ - สูงสุด 2MB)</label>
-                        <input type="file" class="file-upload-input" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileUpload(event)">
+                        <label class="form-label">แนบไฟล์ (PDF, รูปภาพ, เอกสาร - สูงสุด 20MB)</label>
+                        <input type="file" class="file-upload-input" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onchange="handleFileUpload(event)">
                         <label for="fileInput" class="file-upload-area">
-                            <div>📎 คลิกเพื่อเลือกไฟล์</div>
-                            <div style="font-size: 12px; color: #718096; margin-top: 4px;">รองรับ PDF, JPG, PNG (สูงสุด 2MB)</div>
+                            <div><i data-lucide="paperclip" style="width: 20px; height: 20px;"></i> คลิกเพื่อเลือกไฟล์</div>
+                            <div style="font-size: 12px; color: #718096; margin-top: 4px;">รองรับ PDF, รูปภาพ, Word, Excel, PowerPoint (สูงสุด 20MB)</div>
                         </label>
                         <div id="filePreview"></div>
                     </div>
