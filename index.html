@@ -8,7 +8,7 @@
     <title>ระบบบันทึกการพัฒนาตนเองของครู</title>
 
     <!-- External Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
@@ -974,17 +974,55 @@
 
         /* File Attachment */
         .file-upload-area {
-            border: 2px dashed #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 32px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .file-upload-area:hover {
             border-color: var(--primary-color);
-            background: rgba(102, 126, 234, 0.05);
+            border-style: solid;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+        }
+
+        .file-upload-area:hover::before {
+            opacity: 1;
+        }
+
+        .file-upload-area > div:first-child {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .file-upload-area > div:last-child {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
         }
 
         .file-upload-input {
@@ -994,40 +1032,78 @@
         .file-preview {
             display: flex;
             align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-top: 12px;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .file-preview:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        }
+
+        .file-preview span {
+            display: flex;
+            align-items: center;
             gap: 8px;
-            padding: 8px 12px;
-            background: #f7fafc;
-            border-radius: 8px;
-            margin-top: 8px;
-            font-size: 13px;
+            flex: 1;
+            color: var(--text-dark);
+            font-weight: 500;
         }
 
         .file-preview-remove {
             margin-left: auto;
-            background: rgba(245, 101, 101, 0.1);
-            color: #f56565;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
             border: none;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .file-preview-remove:hover {
+            background: #ef4444;
+            color: white;
+            transform: rotate(90deg);
         }
 
         .attachment-icon {
-            background: rgba(102, 126, 234, 0.1);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
             color: var(--primary-color);
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
             font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(99, 102, 241, 0.2);
         }
 
         .attachment-icon:hover {
-            background: rgba(102, 126, 234, 0.2);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .attachment-icon:active {
+            transform: translateY(0);
         }
 
         /* Dashboard Styles */
@@ -3114,102 +3190,121 @@
         // Export Functions
         function exportToPDF() {
             try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-
-                // Thai font support (using THSarabunNew - requires embedding)
-                doc.setFont('helvetica');
-
-                let yPos = 20;
-
-                // Title
-                doc.setFontSize(18);
-                doc.text('Teacher Development Portfolio', 105, yPos, { align: 'center' });
-                yPos += 10;
-
-                // Summary Stats
-                doc.setFontSize(14);
-                doc.text('Summary', 20, yPos);
-                yPos += 8;
-
-                doc.setFontSize(11);
                 const totalHours = activities.reduce((sum, a) => sum + (a.hours || 0), 0);
-                doc.text(`Total PD Hours: ${totalHours}`, 20, yPos);
-                yPos += 6;
-                doc.text(`Activities: ${activities.length}`, 20, yPos);
-                yPos += 6;
-                doc.text(`Goals: ${goals.length}`, 20, yPos);
-                yPos += 6;
-                doc.text(`Skills: ${skills.length}`, 20, yPos);
-                yPos += 10;
+                const date = new Date().toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
 
-                // Activities
-                if (activities.length > 0) {
-                    doc.setFontSize(14);
-                    doc.text('Professional Development Activities', 20, yPos);
-                    yPos += 8;
+                // Create HTML content for PDF
+                const content = `
+                    <div style="font-family: 'Sarabun', 'Tahoma', sans-serif; padding: 40px; max-width: 800px;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="color: #6366f1; font-size: 28px; margin: 0;">📚 รายงานการพัฒนาตนเองของครู</h1>
+                            <p style="color: #64748b; margin-top: 10px;">สร้างเมื่อ: ${date}</p>
+                        </div>
 
-                    doc.setFontSize(10);
-                    activities.slice(0, 10).forEach((activity, index) => {
-                        if (yPos > 270) {
-                            doc.addPage();
-                            yPos = 20;
-                        }
+                        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                            <h2 style="color: #334155; font-size: 20px; margin-bottom: 15px;">📊 สรุปภาพรวม</h2>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                                <div><strong>ชั่วโมงการพัฒนารวม:</strong> ${totalHours} ชั่วโมง</div>
+                                <div><strong>กิจกรรมทั้งหมด:</strong> ${activities.length} กิจกรรม</div>
+                                <div><strong>เป้าหมาย:</strong> ${goals.length} เป้าหมาย</div>
+                                <div><strong>ทักษะ:</strong> ${skills.length} ทักษะ</div>
+                            </div>
+                        </div>
 
-                        doc.text(`${index + 1}. ${activity.title}`, 20, yPos);
-                        yPos += 5;
-                        doc.text(`   Type: ${activity.type} | Date: ${activity.date} | Hours: ${activity.hours}`, 20, yPos);
-                        yPos += 5;
-                        const contentLines = doc.splitTextToSize(`   ${activity.content}`, 170);
-                        doc.text(contentLines, 20, yPos);
-                        yPos += contentLines.length * 5 + 3;
-                    });
-                    yPos += 5;
-                }
+                        ${activities.length > 0 ? `
+                            <div style="margin-bottom: 30px;">
+                                <h2 style="color: #334155; font-size: 20px; margin-bottom: 15px;">📖 กิจกรรมการพัฒนา</h2>
+                                ${activities.slice(0, 10).map((activity, index) => `
+                                    <div style="background: white; padding: 15px; border-left: 4px solid #6366f1; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                        <h3 style="color: #1e293b; font-size: 16px; margin: 0 0 8px 0;">${index + 1}. ${activity.title}</h3>
+                                        <p style="color: #64748b; font-size: 14px; margin: 5px 0;">
+                                            <strong>ประเภท:</strong> ${activity.type} |
+                                            <strong>วันที่:</strong> ${activity.date} |
+                                            <strong>ชั่วโมง:</strong> ${activity.hours}
+                                        </p>
+                                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-top: 10px;">${activity.content}</p>
+                                        ${activity.tags && activity.tags.length > 0 ? `
+                                            <div style="margin-top: 10px;">
+                                                ${activity.tags.map(tag => `<span style="background: #e0e7ff; color: #6366f1; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-right: 5px; display: inline-block;">${tag}</span>`).join('')}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
 
-                // Goals
-                if (goals.length > 0 && yPos < 250) {
-                    if (yPos > 200) {
-                        doc.addPage();
-                        yPos = 20;
-                    }
+                        ${goals.length > 0 ? `
+                            <div style="margin-bottom: 30px;">
+                                <h2 style="color: #334155; font-size: 20px; margin-bottom: 15px;">🎯 เป้าหมายการพัฒนา</h2>
+                                ${goals.slice(0, 8).map((goal, index) => `
+                                    <div style="background: white; padding: 15px; border-left: 4px solid #8b5cf6; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                        <h3 style="color: #1e293b; font-size: 16px; margin: 0 0 8px 0;">${index + 1}. ${goal.title}</h3>
+                                        <p style="color: #64748b; font-size: 14px; margin: 5px 0;">
+                                            <strong>ประเภท:</strong> ${goal.type} |
+                                            <strong>ครบกำหนด:</strong> ${goal.dueDate} |
+                                            <strong>ความคืบหน้า:</strong> ${goal.progress}%
+                                        </p>
+                                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-top: 10px;">${goal.description}</p>
+                                        <div style="background: #e2e8f0; height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden;">
+                                            <div style="background: linear-gradient(90deg, #6366f1, #8b5cf6); height: 100%; width: ${goal.progress}%; transition: width 0.3s;"></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
 
-                    doc.setFontSize(14);
-                    doc.text('Development Goals', 20, yPos);
-                    yPos += 8;
+                        ${skills.length > 0 ? `
+                            <div style="margin-bottom: 30px;">
+                                <h2 style="color: #334155; font-size: 20px; margin-bottom: 15px;">⭐ ทักษะและสมรรถนะ</h2>
+                                ${skills.slice(0, 8).map((skill, index) => `
+                                    <div style="background: white; padding: 15px; border-left: 4px solid #d946ef; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                        <h3 style="color: #1e293b; font-size: 16px; margin: 0 0 8px 0;">${index + 1}. ${skill.name}</h3>
+                                        <p style="color: #64748b; font-size: 14px; margin: 5px 0;">
+                                            <strong>ประเภท:</strong> ${skill.category} |
+                                            <strong>ระดับ:</strong> ${skill.level}/5
+                                        </p>
+                                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-top: 10px;">${skill.description || '-'}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
 
-                    doc.setFontSize(10);
-                    goals.slice(0, 8).forEach((goal, index) => {
-                        if (yPos > 270) {
-                            doc.addPage();
-                            yPos = 20;
-                        }
+                        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px;">
+                            <p>สร้างโดยระบบบันทึกการพัฒนาตนเองของครู</p>
+                        </div>
+                    </div>
+                `;
 
-                        doc.text(`${index + 1}. ${goal.title}`, 20, yPos);
-                        yPos += 5;
-                        doc.text(`   Type: ${goal.type} | Due: ${goal.dueDate} | Progress: ${goal.progress}%`, 20, yPos);
-                        yPos += 5;
-                        const descLines = doc.splitTextToSize(`   ${goal.description}`, 170);
-                        doc.text(descLines, 20, yPos);
-                        yPos += descLines.length * 5 + 3;
-                    });
-                }
+                // Create temporary element
+                const element = document.createElement('div');
+                element.innerHTML = content;
+                document.body.appendChild(element);
 
-                // Footer
-                const pageCount = doc.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    doc.setPage(i);
-                    doc.setFontSize(9);
-                    doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
-                    doc.text(`Generated: ${new Date().toLocaleDateString('th-TH')}`, 20, 290);
-                }
+                // PDF options
+                const opt = {
+                    margin: 10,
+                    filename: `รายงานการพัฒนาครู_${new Date().toISOString().split('T')[0]}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
 
-                // Save
-                doc.save('teacher-development-portfolio.pdf');
-                alert('Export PDF สำเร็จ!');
+                // Generate PDF
+                html2pdf().set(opt).from(element).save().then(() => {
+                    document.body.removeChild(element);
+                    alert('📄 Export PDF สำเร็จ!');
+                }).catch(error => {
+                    document.body.removeChild(element);
+                    throw error;
+                });
+
             } catch (error) {
                 console.error('PDF Export Error:', error);
-                alert('เกิดข้อผิดพลาดในการ Export PDF');
+                alert('❌ เกิดข้อผิดพลาดในการ Export PDF');
             }
         }
 
