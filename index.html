@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>ระบบบันทึกการพัฒนาตนเองของครู</title>
-    <!-- App Version: 2.0.0 - Build: 2025-11-07 -->
+    <!-- App Version: 2.1.0 - Build: 2025-11-07 -->
 
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -1654,6 +1654,24 @@
         <div id="dashboardSection" class="section">
             <div id="storageWarning" class="storage-warning hidden"></div>
 
+            <!-- Teacher Info Card -->
+            <div id="teacherInfoCard" class="card" style="display: none; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div id="teacherAvatarDisplay" style="width: 60px; height: 60px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; overflow: hidden;">
+                        👤
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <h3 id="teacherNameDisplay" style="margin: 0; font-size: 18px; color: var(--text-dark); font-weight: 600;"></h3>
+                        <p id="teacherPositionDisplay" style="margin: 4px 0 0 0; color: var(--text-light); font-size: 14px;"></p>
+                        <p id="teacherSchoolDisplay" style="margin: 2px 0 0 0; color: var(--text-light); font-size: 13px;"></p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="openTeacherInfoModal()" style="height: 36px; flex-shrink: 0;">
+                        <i data-lucide="edit-2" style="width: 14px; height: 14px;"></i>
+                        แก้ไข
+                    </button>
+                </div>
+            </div>
+
             <h2 class="section-title">ภาพรวม</h2>
             <div class="dashboard-grid">
                 <div class="insight-card">
@@ -1937,17 +1955,31 @@
                 <div class="settings-section-title">สำรองข้อมูล</div>
 
                 <div class="settings-item" style="flex-direction: column; align-items: stretch; gap: 15px;">
+                    <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); padding: 15px; border-radius: 10px; border: 1px solid #bae6fd;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <i data-lucide="info" style="width: 18px; height: 18px; color: #0284c7;"></i>
+                            <span style="font-weight: 600; color: #0c4a6e; font-size: 14px;">วิธีใช้งาน Backup</span>
+                        </div>
+                        <ul style="margin: 0; padding-left: 20px; color: #0c4a6e; font-size: 13px; line-height: 1.6;">
+                            <li>คลิก "สำรองข้อมูล" เพื่อดาวน์โหลดไฟล์ .json</li>
+                            <li>เก็บไฟล์ไว้ใน Google Drive หรือ Cloud Storage</li>
+                            <li>เมื่อเปลี่ยนเครื่อง ใช้ "กู้คืนข้อมูล" เพื่อ Import</li>
+                            <li>แนะนำสำรองทุกสัปดาห์</li>
+                        </ul>
+                    </div>
+
+                    <div id="lastBackupInfo" style="text-align: center; color: var(--text-light); font-size: 13px; padding: 8px; background: #f8fafc; border-radius: 8px;">
+                        ยังไม่เคยสำรองข้อมูล
+                    </div>
+
                     <button class="btn btn-primary" onclick="backupData()" style="width: 100%;">
                         <i data-lucide="download" style="width: 16px; height: 16px;"></i>
-                        สำรองข้อมูล (Backup)
+                        💾 สำรองข้อมูล (Backup)
                     </button>
                     <button class="btn btn-secondary" onclick="restoreData()" style="width: 100%;">
                         <i data-lucide="upload" style="width: 16px; height: 16px;"></i>
-                        กู้คืนข้อมูล (Restore)
+                        ♻️ กู้คืนข้อมูล (Restore)
                     </button>
-                    <p style="font-size: 13px; color: var(--text-light); margin: 0;">
-                        💡 แนะนำให้สำรองข้อมูลเป็นประจำเพื่อป้องกันข้อมูลสูญหาย
-                    </p>
                 </div>
             </div>
 
@@ -2047,7 +2079,7 @@
 
         // Initialize App
         function init() {
-            console.log('🎓 Teacher Development App - Version 2.0.0');
+            console.log('🎓 Teacher Development App - Version 2.1.0');
             console.log('✅ App loaded successfully!');
             console.log('📅 Build: 2025-11-07');
 
@@ -2062,6 +2094,7 @@
             renderAll();
             setupEventListeners();
             checkStorageUsage();
+            displayLastBackupInfo();
 
             // Initialize Lucide Icons
             if (typeof lucide !== 'undefined') {
@@ -3303,12 +3336,19 @@
                         ${teacherInfo.name ? `
                             <div style="background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #6366f1;">
                                 <h2 style="color: #334155; font-size: 20px; margin-bottom: 15px;">👤 ข้อมูลครู</h2>
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                                    ${teacherInfo.name ? `<div><strong>ชื่อ-นามสกุล:</strong> ${teacherInfo.name}</div>` : ''}
-                                    ${teacherInfo.school ? `<div><strong>โรงเรียน:</strong> ${teacherInfo.school}</div>` : ''}
-                                    ${teacherInfo.position ? `<div><strong>ตำแหน่ง:</strong> ${teacherInfo.position}</div>` : ''}
-                                    ${teacherInfo.email ? `<div><strong>อีเมล:</strong> ${teacherInfo.email}</div>` : ''}
-                                    ${teacherInfo.phone ? `<div><strong>เบอร์โทร:</strong> ${teacherInfo.phone}</div>` : ''}
+                                <div style="display: flex; gap: 20px; align-items: center;">
+                                    ${teacherInfo.photo ? `
+                                        <div style="flex-shrink: 0;">
+                                            <img src="${teacherInfo.photo}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #6366f1;">
+                                        </div>
+                                    ` : ''}
+                                    <div style="flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                        ${teacherInfo.name ? `<div><strong>ชื่อ-นามสกุล:</strong> ${teacherInfo.name}</div>` : ''}
+                                        ${teacherInfo.school ? `<div><strong>โรงเรียน:</strong> ${teacherInfo.school}</div>` : ''}
+                                        ${teacherInfo.position ? `<div><strong>ตำแหน่ง:</strong> ${teacherInfo.position}</div>` : ''}
+                                        ${teacherInfo.email ? `<div><strong>อีเมล:</strong> ${teacherInfo.email}</div>` : ''}
+                                        ${teacherInfo.phone ? `<div><strong>เบอร์โทร:</strong> ${teacherInfo.phone}</div>` : ''}
+                                    </div>
                                 </div>
                             </div>
                         ` : ''}
@@ -3507,10 +3547,90 @@
                 link.click();
                 URL.revokeObjectURL(url);
 
-                alert('💾 Backup ข้อมูลสำเร็จ!');
+                // Save last backup timestamp
+                const timestamp = new Date().toISOString();
+                localStorage.setItem('lastBackupDate', timestamp);
+
+                // Update display
+                displayLastBackupInfo();
+
+                alert('💾 Backup ข้อมูลสำเร็จ!\n\nไฟล์ถูกบันทึกลงเครื่องของคุณแล้ว\nอย่าลืมเก็บไฟล์ไว้ใน Cloud Storage');
             } catch (error) {
                 console.error('Backup Error:', error);
                 alert('❌ เกิดข้อผิดพลาดในการ Backup ข้อมูล');
+            }
+        }
+
+        function displayLastBackupInfo() {
+            const lastBackup = localStorage.getItem('lastBackupDate');
+            const infoElement = document.getElementById('lastBackupInfo');
+
+            if (!infoElement) return;
+
+            if (!lastBackup) {
+                infoElement.innerHTML = `
+                    <i data-lucide="alert-circle" style="width: 14px; height: 14px; vertical-align: middle;"></i>
+                    ยังไม่เคยสำรองข้อมูล
+                `;
+                infoElement.style.background = '#fef3c7';
+                infoElement.style.color = '#92400e';
+                infoElement.style.border = '1px solid #fcd34d';
+            } else {
+                const backupDate = new Date(lastBackup);
+                const now = new Date();
+                const daysDiff = Math.floor((now - backupDate) / (1000 * 60 * 60 * 24));
+
+                const thaiDate = backupDate.toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                const thaiTime = backupDate.toLocaleTimeString('th-TH', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                let statusText = '';
+                let bgColor = '#dcfce7';
+                let textColor = '#14532d';
+                let borderColor = '#86efac';
+                let icon = 'check-circle';
+
+                if (daysDiff === 0) {
+                    statusText = '(วันนี้)';
+                } else if (daysDiff === 1) {
+                    statusText = '(เมื่อวาน)';
+                } else if (daysDiff <= 7) {
+                    statusText = `(${daysDiff} วันที่แล้ว)`;
+                } else if (daysDiff <= 30) {
+                    statusText = `(${daysDiff} วันที่แล้ว)`;
+                    bgColor = '#fef3c7';
+                    textColor = '#92400e';
+                    borderColor = '#fcd34d';
+                    icon = 'alert-triangle';
+                } else {
+                    statusText = `(${daysDiff} วันที่แล้ว - ควรสำรองใหม่)`;
+                    bgColor = '#fee2e2';
+                    textColor = '#7f1d1d';
+                    borderColor = '#fca5a5';
+                    icon = 'alert-triangle';
+                }
+
+                infoElement.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i data-lucide="${icon}" style="width: 14px; height: 14px;"></i>
+                        <span>สำรองล่าสุด: ${thaiDate} เวลา ${thaiTime} ${statusText}</span>
+                    </div>
+                `;
+                infoElement.style.background = bgColor;
+                infoElement.style.color = textColor;
+                infoElement.style.border = `1px solid ${borderColor}`;
+            }
+
+            // Reinitialize icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
             }
         }
 
@@ -3547,8 +3667,10 @@
                             calculateNotifications();
                             updateStats();
                             renderAll();
+                            displayTeacherInfo();
+                            displayLastBackupInfo();
 
-                            alert('✅ กู้คืนข้อมูลสำเร็จ!');
+                            alert('✅ กู้คืนข้อมูลสำเร็จ!\n\nข้อมูลทั้งหมดของคุณถูกกู้คืนแล้ว');
                         }
                     } catch (error) {
                         console.error('Restore Error:', error);
@@ -3570,6 +3692,19 @@
             modalTitle.textContent = '👤 ข้อมูลส่วนตัวครู';
             modalBody.innerHTML = `
                 <form onsubmit="saveTeacherInfo(event)">
+                    <div class="form-group">
+                        <label class="form-label">รูปภาพ</label>
+                        <div style="margin-bottom: 10px;">
+                            <div id="teacherPhotoPreview" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 2px solid var(--primary-color); margin: 0 auto 10px;">
+                                ${teacherInfo.photo
+                                    ? `<img src="${teacherInfo.photo}" style="width: 100%; height: 100%; object-fit: cover;">`
+                                    : `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 32px;">👤</div>`
+                                }
+                            </div>
+                            <input type="file" accept="image/*" id="teacherPhotoInput" onchange="previewTeacherPhoto(event)" style="display: block; margin: 0 auto; font-size: 13px;">
+                            <p style="text-align: center; margin: 8px 0 0 0; font-size: 12px; color: var(--text-light);">รองรับ JPG, PNG (สูงสุด 2MB)</p>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="form-label">ชื่อ-นามสกุล *</label>
                         <input type="text" class="form-input" id="teacherName" value="${teacherInfo.name || ''}" required>
@@ -3598,26 +3733,110 @@
             modal.classList.add('show');
         }
 
+        function previewTeacherPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('❌ ไฟล์รูปภาพใหญ่เกิน 2MB กรุณาเลือกไฟล์ที่เล็กกว่า');
+                event.target.value = '';
+                return;
+            }
+
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                alert('❌ กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('teacherPhotoPreview');
+                preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
         function saveTeacherInfo(e) {
             e.preventDefault();
 
-            teacherInfo = {
-                name: document.getElementById('teacherName').value,
-                school: document.getElementById('teacherSchool').value,
-                position: document.getElementById('teacherPosition').value,
-                email: document.getElementById('teacherEmail').value,
-                phone: document.getElementById('teacherPhone').value
-            };
+            const photoInput = document.getElementById('teacherPhotoInput');
+            const file = photoInput.files[0];
 
-            localStorage.setItem('teacherInfo', JSON.stringify(teacherInfo));
-            closeModal();
-            alert('✅ บันทึกข้อมูลส่วนตัวสำเร็จ!');
+            if (file) {
+                // Save with new photo
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    teacherInfo = {
+                        name: document.getElementById('teacherName').value,
+                        school: document.getElementById('teacherSchool').value,
+                        position: document.getElementById('teacherPosition').value,
+                        email: document.getElementById('teacherEmail').value,
+                        phone: document.getElementById('teacherPhone').value,
+                        photo: event.target.result
+                    };
+
+                    localStorage.setItem('teacherInfo', JSON.stringify(teacherInfo));
+                    displayTeacherInfo();
+                    closeModal();
+                    alert('✅ บันทึกข้อมูลส่วนตัวสำเร็จ!');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Save without changing photo
+                teacherInfo = {
+                    name: document.getElementById('teacherName').value,
+                    school: document.getElementById('teacherSchool').value,
+                    position: document.getElementById('teacherPosition').value,
+                    email: document.getElementById('teacherEmail').value,
+                    phone: document.getElementById('teacherPhone').value,
+                    photo: teacherInfo.photo || null
+                };
+
+                localStorage.setItem('teacherInfo', JSON.stringify(teacherInfo));
+                displayTeacherInfo();
+                closeModal();
+                alert('✅ บันทึกข้อมูลส่วนตัวสำเร็จ!');
+            }
         }
 
         function loadTeacherInfo() {
             const saved = localStorage.getItem('teacherInfo');
             if (saved) {
                 teacherInfo = JSON.parse(saved);
+                displayTeacherInfo();
+            }
+        }
+
+        function displayTeacherInfo() {
+            const card = document.getElementById('teacherInfoCard');
+            if (teacherInfo && teacherInfo.name) {
+                document.getElementById('teacherNameDisplay').textContent = teacherInfo.name;
+                document.getElementById('teacherPositionDisplay').textContent = teacherInfo.position || 'ครู';
+                document.getElementById('teacherSchoolDisplay').textContent = teacherInfo.school || '';
+
+                // Display photo or default avatar
+                const avatarDisplay = document.getElementById('teacherAvatarDisplay');
+                if (teacherInfo.photo) {
+                    avatarDisplay.innerHTML = `<img src="${teacherInfo.photo}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                } else {
+                    avatarDisplay.innerHTML = '👤';
+                    avatarDisplay.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+                    avatarDisplay.style.display = 'flex';
+                    avatarDisplay.style.alignItems = 'center';
+                    avatarDisplay.style.justifyContent = 'center';
+                }
+
+                card.style.display = 'block';
+
+                // Reinitialize icons
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            } else {
+                card.style.display = 'none';
             }
         }
 
