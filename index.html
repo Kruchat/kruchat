@@ -29,6 +29,26 @@
             --card-bg: #ffffff;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --border-color: #e2e8f0;
+            --input-bg: #ffffff;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            --text-dark: #e0e0e0;
+            --text-light: #a0aec0;
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+            --border-color: #4a5568;
+            --input-bg: #333333;
+        }
+
+        /* Smooth transitions for theme change */
+        body, .header, .card, .stat-card, .modal-content, .bottom-nav,
+        .form-input, .form-select, .form-textarea, .search-input, .filter-select {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         body {
@@ -152,10 +172,12 @@
         .search-input {
             width: 100%;
             padding: 10px 12px 10px 36px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
+            background: var(--input-bg);
+            color: var(--text-dark);
         }
 
         .search-input:focus {
@@ -181,11 +203,12 @@
 
         .filter-select {
             padding: 8px 10px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 13px;
             font-family: inherit;
-            background: white;
+            background: var(--input-bg);
+            color: var(--text-dark);
         }
 
         .filter-select:focus {
@@ -384,7 +407,7 @@
             right: 0;
             background: var(--card-bg);
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             padding-bottom: env(safe-area-inset-bottom);
@@ -539,11 +562,13 @@
         .form-textarea {
             width: 100%;
             padding: 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 16px;
             font-family: inherit;
             transition: border-color 0.2s;
+            background: var(--input-bg);
+            color: var(--text-dark);
         }
 
         .form-input:focus,
@@ -816,11 +841,316 @@
             margin-bottom: 16px;
             text-align: center;
         }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            width: 50px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle-slider {
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .theme-toggle.dark .theme-toggle-slider {
+            transform: translateX(22px);
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #f56565;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: #f56565;
+            border-radius: 50%;
+        }
+
+        /* Tag Styles */
+        .tag-input-container {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .tag-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag-pill:hover {
+            opacity: 0.8;
+        }
+
+        .tag-pill-remove {
+            cursor: pointer;
+            margin-left: 2px;
+            font-weight: bold;
+        }
+
+        /* Tag colors by category */
+        .tag-teaching { background: rgba(102, 126, 234, 0.15); color: #667eea; }
+        .tag-tech { background: rgba(72, 187, 120, 0.15); color: #48bb78; }
+        .tag-admin { background: rgba(237, 137, 54, 0.15); color: #ed8936; }
+        .tag-language { background: rgba(159, 122, 234, 0.15); color: #9f7aea; }
+        .tag-other { background: rgba(160, 174, 192, 0.15); color: #718096; }
+
+        .tag-autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 10;
+            box-shadow: var(--shadow);
+        }
+
+        .tag-autocomplete-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-dark);
+        }
+
+        .tag-autocomplete-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Tag Manager Styles */
+        .tag-manager-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .tag-manager-info {
+            flex: 1;
+        }
+
+        .tag-manager-count {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .tag-manager-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .tag-action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag-edit-btn {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary-color);
+        }
+
+        .tag-delete-btn {
+            background: rgba(245, 101, 101, 0.1);
+            color: #f56565;
+        }
+
+        /* Notification List */
+        .notification-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .notification-item.unread {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .notification-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .notification-icon.warning {
+            background: rgba(237, 137, 54, 0.1);
+        }
+
+        .notification-icon.success {
+            background: rgba(72, 187, 120, 0.1);
+        }
+
+        .notification-icon.info {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-dark);
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Settings Styles */
+        .settings-section {
+            margin-bottom: 24px;
+        }
+
+        .settings-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .settings-label {
+            flex: 1;
+        }
+
+        .settings-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+            color: var(--text-dark);
+        }
+
+        .settings-description {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: #cbd5e0;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-color);
+        }
+
+        .toggle-switch-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active .toggle-switch-slider {
+            transform: translateX(22px);
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
+        <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+            <div class="theme-toggle-slider">☀️</div>
+        </div>
         <h1>📚 การพัฒนาตนเองของครู</h1>
         <p>บันทึกและติดตามการพัฒนาอย่างเป็นระบบ</p>
         <div class="header-actions">
@@ -1034,6 +1364,104 @@
 
             <div id="skillsList"></div>
         </div>
+
+        <!-- More Section (Menu) -->
+        <div id="moreSection" class="section hidden">
+            <h2 class="section-title">เพิ่มเติม</h2>
+
+            <div class="card" onclick="showNotifications()" style="cursor: pointer;">
+                <div class="card-header" style="position: relative;">
+                    <div>
+                        <div class="card-title">🔔 การแจ้งเตือน</div>
+                        <div class="card-date">ดูการแจ้งเตือนทั้งหมด</div>
+                    </div>
+                    <span class="notification-badge hidden" id="notificationCount">0</span>
+                </div>
+            </div>
+
+            <div class="card" onclick="showTagManager()" style="cursor: pointer;">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">🏷️ จัดการ Tag</div>
+                        <div class="card-date">จัดการและแก้ไข Tag ทั้งหมด</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="showSettings()" style="cursor: pointer;">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">⚙️ ตั้งค่า</div>
+                        <div class="card-date">ตั้งค่าการแจ้งเตือนและอื่นๆ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Section -->
+        <div id="notificationsSection" class="section hidden">
+            <h2 class="section-title">การแจ้งเตือน</h2>
+            <div id="notificationsList"></div>
+        </div>
+
+        <!-- Tag Manager Section -->
+        <div id="tagManagerSection" class="section hidden">
+            <h2 class="section-title">จัดการ Tag</h2>
+            <div id="tagManagerList"></div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settingsSection" class="section hidden">
+            <h2 class="section-title">ตั้งค่า</h2>
+
+            <div class="settings-section">
+                <div class="settings-section-title">การแจ้งเตือน</div>
+
+                <div class="settings-item">
+                    <div class="settings-label">
+                        <div class="settings-title">เป้าหมายใกล้ครบกำหนด</div>
+                        <div class="settings-description">แจ้งเตือนเมื่อเป้าหมายใกล้ครบกำหนด (7 และ 3 วัน)</div>
+                    </div>
+                    <div class="toggle-switch active" id="notifGoalDeadline" onclick="toggleSetting('goalDeadline')">
+                        <div class="toggle-switch-slider"></div>
+                    </div>
+                </div>
+
+                <div class="settings-item">
+                    <div class="settings-label">
+                        <div class="settings-title">ไม่มีกิจกรรม 30 วัน</div>
+                        <div class="settings-description">แจ้งเตือนเมื่อไม่มีกิจกรรมเกิน 30 วัน</div>
+                    </div>
+                    <div class="toggle-switch active" id="notifInactivity" onclick="toggleSetting('inactivity')">
+                        <div class="toggle-switch-slider"></div>
+                    </div>
+                </div>
+
+                <div class="settings-item">
+                    <div class="settings-label">
+                        <div class="settings-title">ชั่วโมง PD ครบเป้า</div>
+                        <div class="settings-description">แจ้งเตือนเมื่อชั่วโมง PD ครบ 50 และ 100 ชั่วโมง</div>
+                    </div>
+                    <div class="toggle-switch active" id="notifMilestones" onclick="toggleSetting('milestones')">
+                        <div class="toggle-switch-slider"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">ธีม</div>
+
+                <div class="settings-item">
+                    <div class="settings-label">
+                        <div class="settings-title">โหมดมืด (Dark Mode)</div>
+                        <div class="settings-description">เปลี่ยนสีธีมเป็นโทนสีเข้ม</div>
+                    </div>
+                    <div class="toggle-switch" id="darkModeToggle" onclick="toggleTheme()">
+                        <div class="toggle-switch-slider"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Floating Action Button -->
@@ -1061,6 +1489,11 @@
             <div class="nav-icon">⭐</div>
             <div class="nav-label">ทักษะ</div>
         </button>
+        <button class="nav-item" data-tab="more" style="position: relative;">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">เพิ่มเติม</div>
+            <span class="notification-dot hidden" id="moreBadge"></span>
+        </button>
     </div>
 
     <!-- Modal for Adding/Editing -->
@@ -1084,6 +1517,15 @@
         let skills = [];
         let currentTab = 'dashboard';
         let currentFileUpload = null;
+        let currentTags = []; // Tags for current form
+        let allTags = []; // All unique tags across all items
+        let notifications = [];
+        let notificationSettings = {
+            goalDeadline: true,
+            inactivity: true,
+            milestones: true
+        };
+        let achievedMilestones = []; // Track which PD hour milestones have been achieved
 
         // Chart instances
         let monthlyChart = null;
@@ -1100,7 +1542,11 @@
         // Initialize App
         function init() {
             loadData();
+            loadTheme();
+            loadSettings();
             initSampleData();
+            updateAllTags();
+            calculateNotifications();
             updateStats();
             renderAll();
             setupEventListeners();
@@ -1113,6 +1559,7 @@
             goals = JSON.parse(localStorage.getItem('goals') || '[]');
             ideas = JSON.parse(localStorage.getItem('ideas') || '[]');
             skills = JSON.parse(localStorage.getItem('skills') || '[]');
+            achievedMilestones = JSON.parse(localStorage.getItem('achievedMilestones') || '[]');
         }
 
         // Save data to localStorage
@@ -1121,8 +1568,76 @@
             localStorage.setItem('goals', JSON.stringify(goals));
             localStorage.setItem('ideas', JSON.stringify(ideas));
             localStorage.setItem('skills', JSON.stringify(skills));
+            localStorage.setItem('achievedMilestones', JSON.stringify(achievedMilestones));
+            updateAllTags();
+            calculateNotifications();
             updateStats();
             renderAll();
+        }
+
+        // Load theme from localStorage
+        function loadTheme() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').classList.add('dark');
+                document.querySelector('.theme-toggle-slider').textContent = '🌙';
+                const darkModeToggle = document.getElementById('darkModeToggle');
+                if (darkModeToggle) darkModeToggle.classList.add('active');
+            }
+        }
+
+        // Load settings from localStorage
+        function loadSettings() {
+            const saved = localStorage.getItem('notificationSettings');
+            if (saved) {
+                notificationSettings = JSON.parse(saved);
+                // Update UI
+                Object.keys(notificationSettings).forEach(key => {
+                    const toggle = document.getElementById(`notif${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                    if (toggle && !notificationSettings[key]) {
+                        toggle.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        // Toggle dark mode
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            const toggle = document.getElementById('themeToggle');
+            const slider = document.querySelector('.theme-toggle-slider');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+
+            if (isDark) {
+                toggle.classList.add('dark');
+                slider.textContent = '🌙';
+                if (darkModeToggle) darkModeToggle.classList.add('active');
+            } else {
+                toggle.classList.remove('dark');
+                slider.textContent = '☀️';
+                if (darkModeToggle) darkModeToggle.classList.remove('active');
+            }
+
+            localStorage.setItem('darkMode', isDark);
+        }
+
+        // Toggle notification settings
+        function toggleSetting(setting) {
+            notificationSettings[setting] = !notificationSettings[setting];
+            localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
+
+            const toggle = document.getElementById(`notif${setting.charAt(0).toUpperCase() + setting.slice(1)}`);
+            if (toggle) {
+                if (notificationSettings[setting]) {
+                    toggle.classList.add('active');
+                } else {
+                    toggle.classList.remove('active');
+                }
+            }
+
+            calculateNotifications();
         }
 
         // Initialize sample data
@@ -1214,6 +1729,336 @@
             document.getElementById('totalActivities').textContent = activities.length;
             document.getElementById('totalGoals').textContent = goals.length;
             document.getElementById('totalSkills').textContent = skills.length;
+        }
+
+        // Tag System Functions
+        function updateAllTags() {
+            const tagSet = new Set();
+            [...activities, ...goals, ...ideas, ...skills].forEach(item => {
+                if (item.tags && Array.isArray(item.tags)) {
+                    item.tags.forEach(tag => tagSet.add(tag));
+                }
+            });
+            allTags = Array.from(tagSet).sort();
+        }
+
+        function getTagColor(tag) {
+            // Assign colors based on tag content or randomly
+            const keywords = {
+                teaching: ['สอน', 'เรียน', 'ห้องเรียน', 'นักเรียน', 'กิจกรรม'],
+                tech: ['เทคโนโลยี', 'คอมพิวเตอร์', 'AI', 'Google', 'ดิจิทัล'],
+                admin: ['บริหาร', 'จัดการ', 'ประชุม', 'วางแผน'],
+                language: ['ภาษา', 'อังกฤษ', 'จีน', 'ไทย']
+            };
+
+            for (const [category, words] of Object.entries(keywords)) {
+                if (words.some(word => tag.includes(word))) {
+                    return `tag-${category}`;
+                }
+            }
+            return 'tag-other';
+        }
+
+        function addTag(tag) {
+            const trimmed = tag.trim();
+            if (trimmed && !currentTags.includes(trimmed)) {
+                currentTags.push(trimmed);
+                renderTagPills();
+            }
+        }
+
+        function removeTag(tag) {
+            currentTags = currentTags.filter(t => t !== tag);
+            renderTagPills();
+        }
+
+        function renderTagPills() {
+            const container = document.getElementById('tagPills');
+            if (!container) return;
+
+            if (currentTags.length === 0) {
+                container.innerHTML = '<div style="font-size: 12px; color: var(--text-light);">ยังไม่มี Tag</div>';
+                return;
+            }
+
+            container.innerHTML = currentTags.map(tag => `
+                <span class="tag-pill ${getTagColor(tag)}">
+                    ${tag}
+                    <span class="tag-pill-remove" onclick="removeTag('${tag}')">×</span>
+                </span>
+            `).join('');
+        }
+
+        function showTagAutocomplete(input) {
+            const value = input.value.trim().toLowerCase();
+            const autocomplete = document.getElementById('tagAutocomplete');
+
+            if (!value || value.length < 2) {
+                autocomplete.innerHTML = '';
+                autocomplete.style.display = 'none';
+                return;
+            }
+
+            const matches = allTags.filter(tag =>
+                tag.toLowerCase().includes(value) && !currentTags.includes(tag)
+            ).slice(0, 5);
+
+            if (matches.length === 0) {
+                autocomplete.innerHTML = '<div class="tag-autocomplete-item" style="opacity: 0.6;">กด Enter เพื่อสร้าง Tag ใหม่</div>';
+                autocomplete.style.display = 'block';
+            } else {
+                autocomplete.innerHTML = matches.map(tag => `
+                    <div class="tag-autocomplete-item" onclick="selectTag('${tag}')">${tag}</div>
+                `).join('');
+                autocomplete.style.display = 'block';
+            }
+        }
+
+        function selectTag(tag) {
+            addTag(tag);
+            const input = document.getElementById('tagInput');
+            if (input) {
+                input.value = '';
+                document.getElementById('tagAutocomplete').innerHTML = '';
+                document.getElementById('tagAutocomplete').style.display = 'none';
+            }
+        }
+
+        function handleTagInput(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const value = event.target.value.trim();
+                if (value) {
+                    addTag(value);
+                    event.target.value = '';
+                    document.getElementById('tagAutocomplete').innerHTML = '';
+                    document.getElementById('tagAutocomplete').style.display = 'none';
+                }
+            }
+        }
+
+        // Notification System Functions
+        function calculateNotifications() {
+            notifications = [];
+            const now = new Date();
+
+            // Goal deadline notifications
+            if (notificationSettings.goalDeadline) {
+                goals.forEach(goal => {
+                    if (goal.status === 'completed') return;
+
+                    const dueDate = new Date(goal.dueDate);
+                    const daysUntil = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+
+                    if (daysUntil === 7) {
+                        notifications.push({
+                            id: `goal-7-${goal.id}`,
+                            type: 'warning',
+                            icon: '⚠️',
+                            title: 'เป้าหมายใกล้ครบกำหนด',
+                            message: `"${goal.title}" จะครบกำหนดในอีก 7 วัน`,
+                            time: 'วันนี้',
+                            unread: true
+                        });
+                    } else if (daysUntil === 3) {
+                        notifications.push({
+                            id: `goal-3-${goal.id}`,
+                            type: 'warning',
+                            icon: '⚠️',
+                            title: 'เป้าหมายใกล้ครบกำหนดมาก!',
+                            message: `"${goal.title}" จะครบกำหนดในอีก 3 วัน`,
+                            time: 'วันนี้',
+                            unread: true
+                        });
+                    } else if (daysUntil < 0 && daysUntil > -7) {
+                        notifications.push({
+                            id: `goal-overdue-${goal.id}`,
+                            type: 'warning',
+                            icon: '⚠️',
+                            title: 'เป้าหมายเลยกำหนด',
+                            message: `"${goal.title}" เลยกำหนดมาแล้ว ${Math.abs(daysUntil)} วัน`,
+                            time: 'วันนี้',
+                            unread: true
+                        });
+                    }
+                });
+            }
+
+            // Inactivity notification (30 days)
+            if (notificationSettings.inactivity && activities.length > 0) {
+                const lastActivity = activities.reduce((latest, a) => {
+                    const date = new Date(a.date);
+                    return date > latest ? date : latest;
+                }, new Date(activities[0].date));
+
+                const daysSince = Math.floor((now - lastActivity) / (1000 * 60 * 60 * 24));
+
+                if (daysSince >= 30) {
+                    notifications.push({
+                        id: 'inactivity',
+                        type: 'info',
+                        icon: '📅',
+                        title: 'ไม่มีกิจกรรมนานแล้ว',
+                        message: `ไม่มีกิจกรรมการพัฒนามาแล้ว ${daysSince} วัน`,
+                        time: 'วันนี้',
+                        unread: true
+                    });
+                }
+            }
+
+            // PD Hour milestone notifications
+            if (notificationSettings.milestones) {
+                const totalHours = activities.reduce((sum, a) => sum + (a.hours || 0), 0);
+                const milestones = [50, 100];
+
+                milestones.forEach(milestone => {
+                    if (totalHours >= milestone && !achievedMilestones.includes(milestone)) {
+                        notifications.push({
+                            id: `milestone-${milestone}`,
+                            type: 'success',
+                            icon: '🎉',
+                            title: 'ยินดีด้วย! ครบเป้าหมาย',
+                            message: `คุณทำชั่วโมง PD ครบ ${milestone} ชั่วโมงแล้ว!`,
+                            time: 'วันนี้',
+                            unread: true
+                        });
+                        achievedMilestones.push(milestone);
+                        localStorage.setItem('achievedMilestones', JSON.stringify(achievedMilestones));
+                    }
+                });
+            }
+
+            updateNotificationBadge();
+        }
+
+        function updateNotificationBadge() {
+            const unreadCount = notifications.filter(n => n.unread).length;
+            const badge = document.getElementById('notificationCount');
+            const moreBadge = document.getElementById('moreBadge');
+
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.classList.remove('hidden');
+                moreBadge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+                moreBadge.classList.add('hidden');
+            }
+        }
+
+        function renderNotifications() {
+            const container = document.getElementById('notificationsList');
+            if (!container) return;
+
+            if (notifications.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔔</div><p>ไม่มีการแจ้งเตือน</p></div>';
+                return;
+            }
+
+            container.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${notif.unread ? 'unread' : ''}">
+                    <div class="notification-icon ${notif.type}">
+                        ${notif.icon}
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-message">${notif.message}</div>
+                        <div class="notification-time">${notif.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Navigation Functions
+        function showNotifications() {
+            currentTab = 'notifications';
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('notificationsSection').classList.remove('hidden');
+            document.getElementById('fabBtn').style.display = 'none';
+            renderNotifications();
+            // Mark all as read
+            notifications.forEach(n => n.unread = false);
+            updateNotificationBadge();
+        }
+
+        function showTagManager() {
+            currentTab = 'tagManager';
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('tagManagerSection').classList.remove('hidden');
+            document.getElementById('fabBtn').style.display = 'none';
+            renderTagManager();
+        }
+
+        function showSettings() {
+            currentTab = 'settings';
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('settingsSection').classList.remove('hidden');
+            document.getElementById('fabBtn').style.display = 'none';
+        }
+
+        function renderTagManager() {
+            const container = document.getElementById('tagManagerList');
+            if (!container) return;
+
+            if (allTags.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏷️</div><p>ยังไม่มี Tag</p></div>';
+                return;
+            }
+
+            // Count usage for each tag
+            const tagUsage = {};
+            allTags.forEach(tag => {
+                tagUsage[tag] = 0;
+                [...activities, ...goals, ...ideas, ...skills].forEach(item => {
+                    if (item.tags && item.tags.includes(tag)) {
+                        tagUsage[tag]++;
+                    }
+                });
+            });
+
+            container.innerHTML = allTags.map(tag => `
+                <div class="tag-manager-item">
+                    <div class="tag-manager-info">
+                        <span class="tag-pill ${getTagColor(tag)}">${tag}</span>
+                        <div class="tag-manager-count">ใช้งาน ${tagUsage[tag]} ครั้ง</div>
+                    </div>
+                    <div class="tag-manager-actions">
+                        <button class="tag-action-btn tag-edit-btn" onclick="editTag('${tag}')">แก้ไข</button>
+                        <button class="tag-action-btn tag-delete-btn" onclick="deleteTag('${tag}')">ลบ</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editTag(oldTag) {
+            const newTag = prompt('แก้ไข Tag:', oldTag);
+            if (!newTag || newTag.trim() === '' || newTag === oldTag) return;
+
+            const trimmed = newTag.trim();
+
+            // Update all items with this tag
+            [...activities, ...goals, ...ideas, ...skills].forEach(item => {
+                if (item.tags && item.tags.includes(oldTag)) {
+                    item.tags = item.tags.map(t => t === oldTag ? trimmed : t);
+                }
+            });
+
+            saveData();
+            renderTagManager();
+        }
+
+        function deleteTag(tag) {
+            if (!confirm(`ต้องการลบ Tag "${tag}" หรือไม่?`)) return;
+
+            // Remove from all items
+            [...activities, ...goals, ...ideas, ...skills].forEach(item => {
+                if (item.tags && item.tags.includes(tag)) {
+                    item.tags = item.tags.filter(t => t !== tag);
+                }
+            });
+
+            saveData();
+            renderTagManager();
         }
 
         // Render All Sections
@@ -1632,6 +2477,11 @@
                         <button class="delete-btn" onclick="deleteActivity(${activity.id})">×</button>
                     </div>
                     <div class="card-content">${activity.content}</div>
+                    ${activity.tags && activity.tags.length > 0 ? `
+                        <div class="tag-pills" style="margin-top: 10px;">
+                            ${activity.tags.map(tag => `<span class="tag-pill ${getTagColor(tag)}">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
                     <div class="card-meta">
                         <span class="badge badge-primary">${activity.type}</span>
                         <span class="badge badge-success">${activity.hours} ชั่วโมง</span>
@@ -1665,6 +2515,11 @@
                         <button class="delete-btn" onclick="deleteGoal(${goal.id})">×</button>
                     </div>
                     <div class="card-content">${goal.description}</div>
+                    ${goal.tags && goal.tags.length > 0 ? `
+                        <div class="tag-pills" style="margin-top: 10px;">
+                            ${goal.tags.map(tag => `<span class="tag-pill ${getTagColor(tag)}">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
                     <div class="progress-container">
                         <div class="progress-label">
                             <span>ความคืบหน้า</span>
@@ -1708,6 +2563,11 @@
                         <button class="delete-btn" onclick="deleteIdea(${idea.id})">×</button>
                     </div>
                     <div class="card-content">${idea.content}</div>
+                    ${idea.tags && idea.tags.length > 0 ? `
+                        <div class="tag-pills" style="margin-top: 10px;">
+                            ${idea.tags.map(tag => `<span class="tag-pill ${getTagColor(tag)}">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
                     <div class="card-meta">
                         <span class="badge badge-primary">${idea.type}</span>
                     </div>
@@ -1743,6 +2603,11 @@
                         <button class="delete-btn" onclick="deleteSkill(${skill.id})">×</button>
                     </div>
                     <div class="card-content">${skill.evidence}</div>
+                    ${skill.tags && skill.tags.length > 0 ? `
+                        <div class="tag-pills" style="margin-top: 10px;">
+                            ${skill.tags.map(tag => `<span class="tag-pill ${getTagColor(tag)}">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
                     <div class="card-meta">
                         <span class="badge badge-primary">${skill.category}</span>
                         <span class="badge badge-warning">ระดับ ${skill.level}/5</span>
@@ -1993,6 +2858,8 @@
             if (tab === 'dashboard') {
                 renderDashboard();
                 document.getElementById('fabBtn').style.display = 'none';
+            } else if (tab === 'more') {
+                document.getElementById('fabBtn').style.display = 'none';
             } else {
                 document.getElementById('fabBtn').style.display = 'flex';
             }
@@ -2038,6 +2905,7 @@
 
         // Activity Form
         function getActivityForm() {
+            currentTags = [];
             return `
                 <form onsubmit="saveActivity(event)">
                     <div class="form-group">
@@ -2069,6 +2937,17 @@
                         <textarea class="form-textarea" id="activityContent" required></textarea>
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Tags (แท็ก)</label>
+                        <div id="tagPills" class="tag-pills">
+                            <div style="font-size: 12px; color: var(--text-light);">ยังไม่มี Tag</div>
+                        </div>
+                        <div class="tag-input-container">
+                            <input type="text" class="form-input" id="tagInput" placeholder="พิมพ์แล้วกด Enter เพื่อเพิ่ม Tag"
+                                   oninput="showTagAutocomplete(this)" onkeydown="handleTagInput(event)">
+                            <div id="tagAutocomplete" class="tag-autocomplete" style="display: none;"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">แนบไฟล์ (PDF, รูปภาพ - สูงสุด 2MB)</label>
                         <input type="file" class="file-upload-input" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileUpload(event)">
                         <label for="fileInput" class="file-upload-area">
@@ -2085,6 +2964,7 @@
 
         // Goal Form
         function getGoalForm() {
+            currentTags = [];
             return `
                 <form onsubmit="saveGoal(event)">
                     <div class="form-group">
@@ -2101,6 +2981,17 @@
                     <div class="form-group">
                         <label class="form-label">รายละเอียดเป้าหมาย *</label>
                         <textarea class="form-textarea" id="goalDescription" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tags (แท็ก)</label>
+                        <div id="tagPills" class="tag-pills">
+                            <div style="font-size: 12px; color: var(--text-light);">ยังไม่มี Tag</div>
+                        </div>
+                        <div class="tag-input-container">
+                            <input type="text" class="form-input" id="tagInput" placeholder="พิมพ์แล้วกด Enter เพื่อเพิ่ม Tag"
+                                   oninput="showTagAutocomplete(this)" onkeydown="handleTagInput(event)">
+                            <div id="tagAutocomplete" class="tag-autocomplete" style="display: none;"></div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">วันที่กำหนดเสร็จ *</label>
@@ -2125,6 +3016,7 @@
 
         // Idea Form
         function getIdeaForm() {
+            currentTags = [];
             return `
                 <form onsubmit="saveIdea(event)">
                     <div class="form-group">
@@ -2147,6 +3039,17 @@
                         <label class="form-label">เนื้อหา *</label>
                         <textarea class="form-textarea" id="ideaContent" required></textarea>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Tags (แท็ก)</label>
+                        <div id="tagPills" class="tag-pills">
+                            <div style="font-size: 12px; color: var(--text-light);">ยังไม่มี Tag</div>
+                        </div>
+                        <div class="tag-input-container">
+                            <input type="text" class="form-input" id="tagInput" placeholder="พิมพ์แล้วกด Enter เพื่อเพิ่ม Tag"
+                                   oninput="showTagAutocomplete(this)" onkeydown="handleTagInput(event)">
+                            <div id="tagAutocomplete" class="tag-autocomplete" style="display: none;"></div>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-primary">บันทึก</button>
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
                 </form>
@@ -2155,6 +3058,7 @@
 
         // Skill Form
         function getSkillForm() {
+            currentTags = [];
             return `
                 <form onsubmit="saveSkill(event)">
                     <div class="form-group">
@@ -2179,6 +3083,17 @@
                         <label class="form-label">หลักฐาน/รายละเอียดการพัฒนา *</label>
                         <textarea class="form-textarea" id="skillEvidence" required></textarea>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Tags (แท็ก)</label>
+                        <div id="tagPills" class="tag-pills">
+                            <div style="font-size: 12px; color: var(--text-light);">ยังไม่มี Tag</div>
+                        </div>
+                        <div class="tag-input-container">
+                            <input type="text" class="form-input" id="tagInput" placeholder="พิมพ์แล้วกด Enter เพื่อเพิ่ม Tag"
+                                   oninput="showTagAutocomplete(this)" onkeydown="handleTagInput(event)">
+                            <div id="tagAutocomplete" class="tag-autocomplete" style="display: none;"></div>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-primary">บันทึก</button>
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
                 </form>
@@ -2194,7 +3109,8 @@
                 type: document.getElementById('activityType').value,
                 hours: parseFloat(document.getElementById('activityHours').value),
                 date: document.getElementById('activityDate').value,
-                content: document.getElementById('activityContent').value
+                content: document.getElementById('activityContent').value,
+                tags: [...currentTags]
             };
 
             // Add attachment if exists
@@ -2204,6 +3120,7 @@
             }
 
             activities.push(activity);
+            currentTags = [];
             saveData();
             checkStorageUsage();
             closeModal();
@@ -2219,9 +3136,11 @@
                 description: document.getElementById('goalDescription').value,
                 dueDate: document.getElementById('goalDueDate').value,
                 progress: parseInt(document.getElementById('goalProgress').value),
-                status: document.getElementById('goalStatus').value
+                status: document.getElementById('goalStatus').value,
+                tags: [...currentTags]
             };
             goals.push(goal);
+            currentTags = [];
             saveData();
             closeModal();
         }
@@ -2234,9 +3153,11 @@
                 title: document.getElementById('ideaTitle').value,
                 type: document.getElementById('ideaType').value,
                 date: document.getElementById('ideaDate').value,
-                content: document.getElementById('ideaContent').value
+                content: document.getElementById('ideaContent').value,
+                tags: [...currentTags]
             };
             ideas.push(idea);
+            currentTags = [];
             saveData();
             closeModal();
         }
@@ -2249,9 +3170,11 @@
                 name: document.getElementById('skillName').value,
                 category: document.getElementById('skillCategory').value,
                 level: parseInt(document.getElementById('skillLevel').value),
-                evidence: document.getElementById('skillEvidence').value
+                evidence: document.getElementById('skillEvidence').value,
+                tags: [...currentTags]
             };
             skills.push(skill);
+            currentTags = [];
             saveData();
             closeModal();
         }
