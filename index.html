@@ -2756,7 +2756,12 @@
                 `;
             }
 
-            showModal('ดูไฟล์แนบ', `
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = 'ดูไฟล์แนบ';
+            modalBody.innerHTML = `
                 ${previewContent}
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button class="btn btn-primary" onclick="downloadAttachment(${JSON.stringify(attachment).replace(/"/g, '&quot;')})">
@@ -2764,7 +2769,9 @@
                     </button>
                     <button class="btn btn-secondary" onclick="closeModal()">ปิด</button>
                 </div>
-            `);
+            `;
+
+            modal.classList.add('show');
 
             // Reinitialize icons in modal
             if (typeof lucide !== 'undefined') {
@@ -3951,7 +3958,7 @@
             document.getElementById('activityContent').value = activity.content;
 
             // Show tags
-            updateTagPills();
+            renderTagPills();
 
             // Show file preview if exists
             if (currentFileUpload) {
@@ -3997,7 +4004,7 @@
             document.getElementById('goalProgress').value = goal.progress;
             document.getElementById('goalStatus').value = goal.status;
 
-            updateTagPills();
+            renderTagPills();
 
             modal.classList.add('show');
 
@@ -4025,7 +4032,7 @@
             document.getElementById('ideaType').value = idea.type;
             document.getElementById('ideaContent').value = idea.content;
 
-            updateTagPills();
+            renderTagPills();
 
             modal.classList.add('show');
 
