@@ -6,6 +6,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>ระบบบันทึกการพัฒนาตนเองของครู</title>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -56,6 +61,33 @@
             opacity: 0.9;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .export-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .export-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         /* Stats Cards */
         .stats-container {
             display: grid;
@@ -100,6 +132,97 @@
             font-weight: 600;
             margin: 20px 0 12px;
             color: var(--text-dark);
+        }
+
+        /* Search and Filter */
+        .search-filter-container {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 16px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .filter-select {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            background: white;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .filter-btn-apply {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .filter-btn-reset {
+            background: #e2e8f0;
+            color: var(--text-dark);
+        }
+
+        .result-count {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            text-align: center;
         }
 
         .empty-state {
@@ -537,6 +660,14 @@
     <div class="header">
         <h1>📚 การพัฒนาตนเองของครู</h1>
         <p>บันทึกและติดตามการพัฒนาอย่างเป็นระบบ</p>
+        <div class="header-actions">
+            <button class="export-btn" onclick="exportToPDF()">
+                <span>📄</span> Export PDF
+            </button>
+            <button class="export-btn" onclick="exportToExcel()">
+                <span>📊</span> Export Excel
+            </button>
+        </div>
     </div>
 
     <!-- Stats Cards -->
@@ -564,24 +695,144 @@
         <!-- Activities Section -->
         <div id="activitiesSection" class="section">
             <h2 class="section-title">กิจกรรมการพัฒนา</h2>
+
+            <!-- Search and Filter -->
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchActivities" placeholder="ค้นหากิจกรรม...">
+                </div>
+                <div class="filter-row">
+                    <select class="filter-select" id="filterActivityType">
+                        <option value="">ประเภททั้งหมด</option>
+                        <option value="อบรม">อบรม</option>
+                        <option value="สัมมนา">สัมมนา</option>
+                        <option value="ศึกษาดูงาน">ศึกษาดูงาน</option>
+                        <option value="PLC">PLC</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                    <select class="filter-select" id="sortActivities">
+                        <option value="date-desc">วันที่ล่าสุด</option>
+                        <option value="date-asc">วันที่เก่าสุด</option>
+                        <option value="title-asc">ชื่อ A-Z</option>
+                        <option value="hours-desc">ชั่วโมงมาก-น้อย</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="filter-btn filter-btn-apply" onclick="applyFilters('activities')">กรอง</button>
+                    <button class="filter-btn filter-btn-reset" onclick="resetFilters('activities')">รีเซ็ต</button>
+                </div>
+                <div class="result-count" id="activitiesCount"></div>
+            </div>
+
             <div id="activitiesList"></div>
         </div>
 
         <!-- Goals Section -->
         <div id="goalsSection" class="section hidden">
             <h2 class="section-title">เป้าหมายการพัฒนา</h2>
+
+            <!-- Search and Filter -->
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchGoals" placeholder="ค้นหาเป้าหมาย...">
+                </div>
+                <div class="filter-row">
+                    <select class="filter-select" id="filterGoalType">
+                        <option value="">ประเภททั้งหมด</option>
+                        <option value="ระยะสั้น">ระยะสั้น</option>
+                        <option value="ระยะยาว">ระยะยาว</option>
+                    </select>
+                    <select class="filter-select" id="filterGoalStatus">
+                        <option value="">สถานะทั้งหมด</option>
+                        <option value="ongoing">กำลังดำเนินการ</option>
+                        <option value="completed">สำเร็จแล้ว</option>
+                    </select>
+                </div>
+                <div class="filter-row">
+                    <select class="filter-select" id="sortGoals">
+                        <option value="date-desc">วันกำหนดเสร็จล่าสุด</option>
+                        <option value="date-asc">วันกำหนดเสร็จเก่าสุด</option>
+                        <option value="progress-desc">ความคืบหน้ามาก-น้อย</option>
+                        <option value="progress-asc">ความคืบหน้าน้อย-มาก</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="filter-btn filter-btn-apply" onclick="applyFilters('goals')">กรอง</button>
+                    <button class="filter-btn filter-btn-reset" onclick="resetFilters('goals')">รีเซ็ต</button>
+                </div>
+                <div class="result-count" id="goalsCount"></div>
+            </div>
+
             <div id="goalsList"></div>
         </div>
 
         <!-- Ideas Section -->
         <div id="ideasSection" class="section hidden">
             <h2 class="section-title">ไอเดียและบันทึก</h2>
+
+            <!-- Search and Filter -->
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchIdeas" placeholder="ค้นหาไอเดีย...">
+                </div>
+                <div class="filter-row">
+                    <select class="filter-select" id="filterIdeaType">
+                        <option value="">ประเภททั้งหมด</option>
+                        <option value="ไอเดียการสอน">ไอเดียการสอน</option>
+                        <option value="การสะท้อนตนเอง">การสะท้อนตนเอง</option>
+                        <option value="บันทึกทั่วไป">บันทึกทั่วไป</option>
+                    </select>
+                    <select class="filter-select" id="sortIdeas">
+                        <option value="date-desc">วันที่ล่าสุด</option>
+                        <option value="date-asc">วันที่เก่าสุด</option>
+                        <option value="title-asc">ชื่อ A-Z</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="filter-btn filter-btn-apply" onclick="applyFilters('ideas')">กรอง</button>
+                    <button class="filter-btn filter-btn-reset" onclick="resetFilters('ideas')">รีเซ็ต</button>
+                </div>
+                <div class="result-count" id="ideasCount"></div>
+            </div>
+
             <div id="ideasList"></div>
         </div>
 
         <!-- Skills Section -->
         <div id="skillsSection" class="section hidden">
             <h2 class="section-title">ทักษะและสมรรถนะ</h2>
+
+            <!-- Search and Filter -->
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchSkills" placeholder="ค้นหาทักษะ...">
+                </div>
+                <div class="filter-row">
+                    <select class="filter-select" id="filterSkillCategory">
+                        <option value="">หมวดหมู่ทั้งหมด</option>
+                        <option value="การสอน">การสอน</option>
+                        <option value="เทคโนโลยี">เทคโนโลยี</option>
+                        <option value="การบริหารจัดการ">การบริหารจัดการ</option>
+                        <option value="ภาษา">ภาษา</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                    <select class="filter-select" id="sortSkills">
+                        <option value="level-desc">ระดับมาก-น้อย</option>
+                        <option value="level-asc">ระดับน้อย-มาก</option>
+                        <option value="name-asc">ชื่อ A-Z</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="filter-btn filter-btn-apply" onclick="applyFilters('skills')">กรอง</button>
+                    <button class="filter-btn filter-btn-reset" onclick="resetFilters('skills')">รีเซ็ต</button>
+                </div>
+                <div class="result-count" id="skillsCount"></div>
+            </div>
+
             <div id="skillsList"></div>
         </div>
     </div>
@@ -629,6 +880,14 @@
         let ideas = [];
         let skills = [];
         let currentTab = 'activities';
+
+        // Filter state
+        let filters = {
+            activities: { search: '', type: '', sort: 'date-desc' },
+            goals: { search: '', type: '', status: '', sort: 'date-desc' },
+            ideas: { search: '', type: '', sort: 'date-desc' },
+            skills: { search: '', category: '', sort: 'level-desc' }
+        };
 
         // Initialize App
         function init() {
@@ -756,16 +1015,147 @@
             renderSkills();
         }
 
+        // Filter and Search Functions
+        function getFilteredData(dataArray, filterConfig) {
+            let filtered = [...dataArray];
+
+            // Apply search
+            if (filterConfig.search) {
+                const searchLower = filterConfig.search.toLowerCase();
+                filtered = filtered.filter(item => {
+                    const title = (item.title || item.name || '').toLowerCase();
+                    const content = (item.content || item.description || item.evidence || '').toLowerCase();
+                    const type = (item.type || item.category || '').toLowerCase();
+                    return title.includes(searchLower) || content.includes(searchLower) || type.includes(searchLower);
+                });
+            }
+
+            // Apply type/category filter
+            if (filterConfig.type && filterConfig.type !== '') {
+                filtered = filtered.filter(item => item.type === filterConfig.type);
+            }
+            if (filterConfig.category && filterConfig.category !== '') {
+                filtered = filtered.filter(item => item.category === filterConfig.category);
+            }
+            if (filterConfig.status && filterConfig.status !== '') {
+                filtered = filtered.filter(item => item.status === filterConfig.status);
+            }
+
+            // Apply sorting
+            if (filterConfig.sort) {
+                switch(filterConfig.sort) {
+                    case 'date-desc':
+                        filtered.sort((a, b) => new Date(b.date || b.dueDate) - new Date(a.date || a.dueDate));
+                        break;
+                    case 'date-asc':
+                        filtered.sort((a, b) => new Date(a.date || a.dueDate) - new Date(b.date || b.dueDate));
+                        break;
+                    case 'title-asc':
+                        filtered.sort((a, b) => (a.title || a.name || '').localeCompare(b.title || b.name || '', 'th'));
+                        break;
+                    case 'name-asc':
+                        filtered.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th'));
+                        break;
+                    case 'hours-desc':
+                        filtered.sort((a, b) => (b.hours || 0) - (a.hours || 0));
+                        break;
+                    case 'progress-desc':
+                        filtered.sort((a, b) => (b.progress || 0) - (a.progress || 0));
+                        break;
+                    case 'progress-asc':
+                        filtered.sort((a, b) => (a.progress || 0) - (b.progress || 0));
+                        break;
+                    case 'level-desc':
+                        filtered.sort((a, b) => (b.level || 0) - (a.level || 0));
+                        break;
+                    case 'level-asc':
+                        filtered.sort((a, b) => (a.level || 0) - (b.level || 0));
+                        break;
+                }
+            }
+
+            return filtered;
+        }
+
+        function applyFilters(section) {
+            switch(section) {
+                case 'activities':
+                    filters.activities.search = document.getElementById('searchActivities').value;
+                    filters.activities.type = document.getElementById('filterActivityType').value;
+                    filters.activities.sort = document.getElementById('sortActivities').value;
+                    renderActivities();
+                    break;
+                case 'goals':
+                    filters.goals.search = document.getElementById('searchGoals').value;
+                    filters.goals.type = document.getElementById('filterGoalType').value;
+                    filters.goals.status = document.getElementById('filterGoalStatus').value;
+                    filters.goals.sort = document.getElementById('sortGoals').value;
+                    renderGoals();
+                    break;
+                case 'ideas':
+                    filters.ideas.search = document.getElementById('searchIdeas').value;
+                    filters.ideas.type = document.getElementById('filterIdeaType').value;
+                    filters.ideas.sort = document.getElementById('sortIdeas').value;
+                    renderIdeas();
+                    break;
+                case 'skills':
+                    filters.skills.search = document.getElementById('searchSkills').value;
+                    filters.skills.category = document.getElementById('filterSkillCategory').value;
+                    filters.skills.sort = document.getElementById('sortSkills').value;
+                    renderSkills();
+                    break;
+            }
+        }
+
+        function resetFilters(section) {
+            switch(section) {
+                case 'activities':
+                    filters.activities = { search: '', type: '', sort: 'date-desc' };
+                    document.getElementById('searchActivities').value = '';
+                    document.getElementById('filterActivityType').value = '';
+                    document.getElementById('sortActivities').value = 'date-desc';
+                    renderActivities();
+                    break;
+                case 'goals':
+                    filters.goals = { search: '', type: '', status: '', sort: 'date-desc' };
+                    document.getElementById('searchGoals').value = '';
+                    document.getElementById('filterGoalType').value = '';
+                    document.getElementById('filterGoalStatus').value = '';
+                    document.getElementById('sortGoals').value = 'date-desc';
+                    renderGoals();
+                    break;
+                case 'ideas':
+                    filters.ideas = { search: '', type: '', sort: 'date-desc' };
+                    document.getElementById('searchIdeas').value = '';
+                    document.getElementById('filterIdeaType').value = '';
+                    document.getElementById('sortIdeas').value = 'date-desc';
+                    renderIdeas();
+                    break;
+                case 'skills':
+                    filters.skills = { search: '', category: '', sort: 'level-desc' };
+                    document.getElementById('searchSkills').value = '';
+                    document.getElementById('filterSkillCategory').value = '';
+                    document.getElementById('sortSkills').value = 'level-desc';
+                    renderSkills();
+                    break;
+            }
+        }
+
         // Render Activities
         function renderActivities() {
             const container = document.getElementById('activitiesList');
-            if (activities.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>ยังไม่มีกิจกรรมการพัฒนา<br>กดปุ่ม + เพื่อเพิ่มข้อมูล</p></div>';
+            const countContainer = document.getElementById('activitiesCount');
+
+            const filtered = getFilteredData(activities, filters.activities);
+
+            countContainer.textContent = `แสดง ${filtered.length} จาก ${activities.length} รายการ`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>ไม่พบกิจกรรมที่ค้นหา</p></div>';
                 return;
             }
 
-            const sorted = [...activities].sort((a, b) => new Date(b.date) - new Date(a.date));
-            container.innerHTML = sorted.map(activity => `
+            container.innerHTML = filtered.map(activity => `
                 <div class="card">
                     <div class="card-header">
                         <div>
@@ -786,13 +1176,18 @@
         // Render Goals
         function renderGoals() {
             const container = document.getElementById('goalsList');
-            if (goals.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎯</div><p>ยังไม่มีเป้าหมายการพัฒนา<br>กดปุ่ม + เพื่อเพิ่มข้อมูล</p></div>';
+            const countContainer = document.getElementById('goalsCount');
+
+            const filtered = getFilteredData(goals, filters.goals);
+
+            countContainer.textContent = `แสดง ${filtered.length} จาก ${goals.length} รายการ`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎯</div><p>ไม่พบเป้าหมายที่ค้นหา</p></div>';
                 return;
             }
 
-            const sorted = [...goals].sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
-            container.innerHTML = sorted.map(goal => `
+            container.innerHTML = filtered.map(goal => `
                 <div class="card">
                     <div class="card-header">
                         <div>
@@ -824,13 +1219,18 @@
         // Render Ideas
         function renderIdeas() {
             const container = document.getElementById('ideasList');
-            if (ideas.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💡</div><p>ยังไม่มีไอเดียและบันทึก<br>กดปุ่ม + เพื่อเพิ่มข้อมูล</p></div>';
+            const countContainer = document.getElementById('ideasCount');
+
+            const filtered = getFilteredData(ideas, filters.ideas);
+
+            countContainer.textContent = `แสดง ${filtered.length} จาก ${ideas.length} รายการ`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💡</div><p>ไม่พบไอเดียที่ค้นหา</p></div>';
                 return;
             }
 
-            const sorted = [...ideas].sort((a, b) => new Date(b.date) - new Date(a.date));
-            container.innerHTML = sorted.map(idea => `
+            container.innerHTML = filtered.map(idea => `
                 <div class="card">
                     <div class="card-header">
                         <div>
@@ -850,13 +1250,18 @@
         // Render Skills
         function renderSkills() {
             const container = document.getElementById('skillsList');
-            if (skills.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⭐</div><p>ยังไม่มีทักษะและสมรรถนะ<br>กดปุ่ม + เพื่อเพิ่มข้อมูล</p></div>';
+            const countContainer = document.getElementById('skillsCount');
+
+            const filtered = getFilteredData(skills, filters.skills);
+
+            countContainer.textContent = `แสดง ${filtered.length} จาก ${skills.length} รายการ`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⭐</div><p>ไม่พบทักษะที่ค้นหา</p></div>';
                 return;
             }
 
-            const sorted = [...skills].sort((a, b) => b.level - a.level);
-            container.innerHTML = sorted.map(skill => `
+            container.innerHTML = filtered.map(skill => `
                 <div class="card">
                     <div class="card-header">
                         <div style="flex: 1;">
@@ -876,6 +1281,176 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        // Export Functions
+        function exportToPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Thai font support (using THSarabunNew - requires embedding)
+                doc.setFont('helvetica');
+
+                let yPos = 20;
+
+                // Title
+                doc.setFontSize(18);
+                doc.text('Teacher Development Portfolio', 105, yPos, { align: 'center' });
+                yPos += 10;
+
+                // Summary Stats
+                doc.setFontSize(14);
+                doc.text('Summary', 20, yPos);
+                yPos += 8;
+
+                doc.setFontSize(11);
+                const totalHours = activities.reduce((sum, a) => sum + (a.hours || 0), 0);
+                doc.text(`Total PD Hours: ${totalHours}`, 20, yPos);
+                yPos += 6;
+                doc.text(`Activities: ${activities.length}`, 20, yPos);
+                yPos += 6;
+                doc.text(`Goals: ${goals.length}`, 20, yPos);
+                yPos += 6;
+                doc.text(`Skills: ${skills.length}`, 20, yPos);
+                yPos += 10;
+
+                // Activities
+                if (activities.length > 0) {
+                    doc.setFontSize(14);
+                    doc.text('Professional Development Activities', 20, yPos);
+                    yPos += 8;
+
+                    doc.setFontSize(10);
+                    activities.slice(0, 10).forEach((activity, index) => {
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+
+                        doc.text(`${index + 1}. ${activity.title}`, 20, yPos);
+                        yPos += 5;
+                        doc.text(`   Type: ${activity.type} | Date: ${activity.date} | Hours: ${activity.hours}`, 20, yPos);
+                        yPos += 5;
+                        const contentLines = doc.splitTextToSize(`   ${activity.content}`, 170);
+                        doc.text(contentLines, 20, yPos);
+                        yPos += contentLines.length * 5 + 3;
+                    });
+                    yPos += 5;
+                }
+
+                // Goals
+                if (goals.length > 0 && yPos < 250) {
+                    if (yPos > 200) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+
+                    doc.setFontSize(14);
+                    doc.text('Development Goals', 20, yPos);
+                    yPos += 8;
+
+                    doc.setFontSize(10);
+                    goals.slice(0, 8).forEach((goal, index) => {
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+
+                        doc.text(`${index + 1}. ${goal.title}`, 20, yPos);
+                        yPos += 5;
+                        doc.text(`   Type: ${goal.type} | Due: ${goal.dueDate} | Progress: ${goal.progress}%`, 20, yPos);
+                        yPos += 5;
+                        const descLines = doc.splitTextToSize(`   ${goal.description}`, 170);
+                        doc.text(descLines, 20, yPos);
+                        yPos += descLines.length * 5 + 3;
+                    });
+                }
+
+                // Footer
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(9);
+                    doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+                    doc.text(`Generated: ${new Date().toLocaleDateString('th-TH')}`, 20, 290);
+                }
+
+                // Save
+                doc.save('teacher-development-portfolio.pdf');
+                alert('Export PDF สำเร็จ!');
+            } catch (error) {
+                console.error('PDF Export Error:', error);
+                alert('เกิดข้อผิดพลาดในการ Export PDF');
+            }
+        }
+
+        function exportToExcel() {
+            try {
+                const wb = XLSX.utils.book_new();
+
+                // Activities Sheet
+                const activitiesData = activities.map(a => ({
+                    'ชื่อกิจกรรม': a.title,
+                    'ประเภท': a.type,
+                    'วันที่': a.date,
+                    'ชั่วโมง': a.hours,
+                    'เนื้อหา': a.content
+                }));
+                const wsActivities = XLSX.utils.json_to_sheet(activitiesData);
+                XLSX.utils.book_append_sheet(wb, wsActivities, 'Activities');
+
+                // Goals Sheet
+                const goalsData = goals.map(g => ({
+                    'เป้าหมาย': g.title,
+                    'ประเภท': g.type,
+                    'รายละเอียด': g.description,
+                    'วันกำหนดเสร็จ': g.dueDate,
+                    'ความคืบหน้า': `${g.progress}%`,
+                    'สถานะ': g.status === 'completed' ? 'สำเร็จ' : 'กำลังดำเนินการ'
+                }));
+                const wsGoals = XLSX.utils.json_to_sheet(goalsData);
+                XLSX.utils.book_append_sheet(wb, wsGoals, 'Goals');
+
+                // Ideas Sheet
+                const ideasData = ideas.map(i => ({
+                    'หัวข้อ': i.title,
+                    'ประเภท': i.type,
+                    'วันที่': i.date,
+                    'เนื้อหา': i.content
+                }));
+                const wsIdeas = XLSX.utils.json_to_sheet(ideasData);
+                XLSX.utils.book_append_sheet(wb, wsIdeas, 'Ideas');
+
+                // Skills Sheet
+                const skillsData = skills.map(s => ({
+                    'ทักษะ': s.name,
+                    'หมวดหมู่': s.category,
+                    'ระดับ': `${s.level}/5`,
+                    'หลักฐาน': s.evidence
+                }));
+                const wsSkills = XLSX.utils.json_to_sheet(skillsData);
+                XLSX.utils.book_append_sheet(wb, wsSkills, 'Skills');
+
+                // Summary Sheet
+                const totalHours = activities.reduce((sum, a) => sum + (a.hours || 0), 0);
+                const summaryData = [
+                    { 'รายการ': 'ชั่วโมง PD รวม', 'จำนวน': totalHours },
+                    { 'รายการ': 'จำนวนกิจกรรม', 'จำนวน': activities.length },
+                    { 'รายการ': 'จำนวนเป้าหมาย', 'จำนวน': goals.length },
+                    { 'รายการ': 'จำนวนทักษะ', 'จำนวน': skills.length },
+                    { 'รายการ': 'วันที่ Export', 'จำนวน': new Date().toLocaleDateString('th-TH') }
+                ];
+                const wsSummary = XLSX.utils.json_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+                // Save
+                XLSX.writeFile(wb, 'teacher-development-data.xlsx');
+                alert('Export Excel สำเร็จ!');
+            } catch (error) {
+                console.error('Excel Export Error:', error);
+                alert('เกิดข้อผิดพลาดในการ Export Excel');
+            }
         }
 
         // Delete Functions
