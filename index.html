@@ -4211,14 +4211,16 @@
             } else {
                 // Add new skill
                 const skill = {
-                id: Date.now(),
-                name: document.getElementById('skillName').value,
-                category: document.getElementById('skillCategory').value,
-                level: parseInt(document.getElementById('skillLevel').value),
-                evidence: document.getElementById('skillEvidence').value,
-                tags: [...currentTags]
-            };
-            skills.push(skill);
+                    id: Date.now(),
+                    name: document.getElementById('skillName').value,
+                    category: document.getElementById('skillCategory').value,
+                    level: parseInt(document.getElementById('skillLevel').value),
+                    evidence: document.getElementById('skillEvidence').value,
+                    tags: [...currentTags]
+                };
+                skills.push(skill);
+            }
+
             currentTags = [];
             saveData();
             closeModal();
