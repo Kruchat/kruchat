@@ -6,6 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>ระบบบันทึกการพัฒนาตนเองของครู</title>
+    <!-- App Version: 2.0.0 - Build: 2025-11-07 -->
 
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -2046,6 +2047,10 @@
 
         // Initialize App
         function init() {
+            console.log('🎓 Teacher Development App - Version 2.0.0');
+            console.log('✅ App loaded successfully!');
+            console.log('📅 Build: 2025-11-07');
+
             loadData();
             loadTheme();
             loadSettings();
@@ -2062,6 +2067,8 @@
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
+
+            console.log('✨ All features loaded: Edit, Backup, Teacher Info, File Preview');
         }
 
         // Load data from localStorage
