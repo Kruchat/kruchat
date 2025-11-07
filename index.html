@@ -3384,6 +3384,11 @@
             modalTitle.textContent = title;
             modalBody.innerHTML = form;
             modal.classList.add('show');
+
+            // Initialize Lucide Icons in modal
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         // Close Modal
