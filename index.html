@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>ระบบบันทึกการพัฒนาตนเองของครู</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --text-dark: #2d3748;
+            --text-light: #718096;
+            --bg-color: #f7fafc;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Sarabun', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            padding-bottom: 80px;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 16px;
+            margin-top: -30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* Content Container */
+        .content {
+            padding: 0 16px 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0 12px;
+            color: var(--text-dark);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .card-date {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .card-content {
+            font-size: 14px;
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-primary {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary-color);
+        }
+
+        .badge-success {
+            background: rgba(72, 187, 120, 0.1);
+            color: #48bb78;
+        }
+
+        .badge-warning {
+            background: rgba(237, 137, 54, 0.1);
+            color: #ed8936;
+        }
+
+        /* Delete Button */
+        .delete-btn {
+            background: rgba(245, 101, 101, 0.1);
+            color: #f56565;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .delete-btn:active {
+            background: rgba(245, 101, 101, 0.2);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 12px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        /* Skill Stars */
+        .skill-level {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .star {
+            font-size: 16px;
+        }
+
+        .star.filled {
+            color: #f6ad55;
+        }
+
+        .star.empty {
+            color: #e2e8f0;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            color: var(--text-light);
+        }
+
+        .nav-item.active .nav-icon {
+            color: var(--primary-color);
+        }
+
+        .nav-label {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .nav-item.active .nav-label {
+            color: var(--primary-color);
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            font-size: 28px;
+            border: none;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: flex-end;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 28px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-primary:active {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: var(--text-dark);
+            margin-top: 12px;
+        }
+
+        .btn-secondary:active {
+            background: #cbd5e0;
+        }
+
+        /* Range Input */
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: none;
+        }
+
+        .range-value {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-ongoing {
+            background: rgba(237, 137, 54, 0.1);
+            color: #ed8936;
+        }
+
+        .status-completed {
+            background: rgba(72, 187, 120, 0.1);
+            color: #48bb78;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>📚 การพัฒนาตนเองของครู</h1>
+        <p>บันทึกและติดตามการพัฒนาอย่างเป็นระบบ</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-value" id="totalHours">0</div>
+            <div class="stat-label">ชั่วโมง PD</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="totalActivities">0</div>
+            <div class="stat-label">กิจกรรม</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="totalGoals">0</div>
+            <div class="stat-label">เป้าหมาย</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="totalSkills">0</div>
+            <div class="stat-label">ทักษะ</div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content">
+        <!-- Activities Section -->
+        <div id="activitiesSection" class="section">
+            <h2 class="section-title">กิจกรรมการพัฒนา</h2>
+            <div id="activitiesList"></div>
+        </div>
+
+        <!-- Goals Section -->
+        <div id="goalsSection" class="section hidden">
+            <h2 class="section-title">เป้าหมายการพัฒนา</h2>
+            <div id="goalsList"></div>
+        </div>
+
+        <!-- Ideas Section -->
+        <div id="ideasSection" class="section hidden">
+            <h2 class="section-title">ไอเดียและบันทึก</h2>
+            <div id="ideasList"></div>
+        </div>
+
+        <!-- Skills Section -->
+        <div id="skillsSection" class="section hidden">
+            <h2 class="section-title">ทักษะและสมรรถนะ</h2>
+            <div id="skillsList"></div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fabBtn">+</button>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-item active" data-tab="activities">
+            <div class="nav-icon">📖</div>
+            <div class="nav-label">กิจกรรม</div>
+        </button>
+        <button class="nav-item" data-tab="goals">
+            <div class="nav-icon">🎯</div>
+            <div class="nav-label">เป้าหมาย</div>
+        </button>
+        <button class="nav-item" data-tab="ideas">
+            <div class="nav-icon">💡</div>
+            <div class="nav-label">ไอเดีย</div>
+        </button>
+        <button class="nav-item" data-tab="skills">
+            <div class="nav-icon">⭐</div>
+            <div class="nav-label">ทักษะ</div>
+        </button>
+    </div>
+
+    <!-- Modal for Adding/Editing -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">เพิ่มข้อมูล</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Forms will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let activities = [];
+        let goals = [];
+        let ideas = [];
+        let skills = [];
+        let currentTab = 'activities';
+
+        // Initialize App
+        function init() {
+            loadData();
+            initSampleData();
+            updateStats();
+            renderAll();
+            setupEventListeners();
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            activities = JSON.parse(localStorage.getItem('activities') || '[]');
+            goals = JSON.parse(localStorage.getItem('goals') || '[]');
+            ideas = JSON.parse(localStorage.getItem('ideas') || '[]');
+            skills = JSON.parse(localStorage.getItem('skills') || '[]');
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('activities', JSON.stringify(activities));
+            localStorage.setItem('goals', JSON.stringify(goals));
+            localStorage.setItem('ideas', JSON.stringify(ideas));
+            localStorage.setItem('skills', JSON.stringify(skills));
+            updateStats();
+            renderAll();
+        }
+
+        // Initialize sample data
+        function initSampleData() {
+            if (!localStorage.getItem('dataInitialized')) {
+                activities = [
+                    {
+                        id: Date.now(),
+                        title: 'การอบรม Active Learning',
+                        type: 'อบรม',
+                        date: '2025-11-05',
+                        hours: 6,
+                        content: 'เรียนรู้เทคนิคการสอนแบบ Active Learning เพื่อให้นักเรียนมีส่วนร่วมมากขึ้น ได้ลองใช้กิจกรรม Think-Pair-Share และ Jigsaw'
+                    },
+                    {
+                        id: Date.now() + 1,
+                        title: 'PLC: การใช้เทคโนโลยีในห้องเรียน',
+                        type: 'PLC',
+                        date: '2025-11-01',
+                        hours: 3,
+                        content: 'แลกเปลี่ยนประสบการณ์การใช้ Google Classroom และ Kahoot ในการสอน'
+                    }
+                ];
+
+                goals = [
+                    {
+                        id: Date.now(),
+                        title: 'พัฒนาทักษะการใช้ AI ในการสอน',
+                        type: 'ระยะสั้น',
+                        description: 'เรียนรู้การใช้ ChatGPT และ AI tools ต่างๆ ในการออกแบบกิจกรรมและประเมินผล',
+                        dueDate: '2025-12-31',
+                        progress: 40,
+                        status: 'ongoing'
+                    },
+                    {
+                        id: Date.now() + 1,
+                        title: 'ได้รับรางวัลครูดีเด่น',
+                        type: 'ระยะยาว',
+                        description: 'ทำผลงานและพัฒนาตนเองอย่างต่อเนื่องเพื่อเป็นแบบอย่างที่ดี',
+                        dueDate: '2026-12-31',
+                        progress: 25,
+                        status: 'ongoing'
+                    }
+                ];
+
+                ideas = [
+                    {
+                        id: Date.now(),
+                        title: 'ใช้ Gamification ในการสอนคณิตศาสตร์',
+                        type: 'ไอเดียการสอน',
+                        date: '2025-11-06',
+                        content: 'ออกแบบเกมคณิตศาสตร์แบบ RPG ที่นักเรียนต้องแก้โจทย์เพื่อเพิ่ม EXP และ Level Up'
+                    },
+                    {
+                        id: Date.now() + 1,
+                        title: 'การสะท้อนตนเอง: สัปดาห์ที่ผ่านมา',
+                        type: 'การสะท้อนตนเอง',
+                        date: '2025-11-03',
+                        content: 'นักเรียนมีความสนใจมากขึ้นเมื่อใช้วิดีโอประกอบการสอน ควรหาวิดีโอที่เหมาะสมมากขึ้น'
+                    }
+                ];
+
+                skills = [
+                    {
+                        id: Date.now(),
+                        name: 'การออกแบบกิจกรรมการเรียนรู้',
+                        category: 'การสอน',
+                        level: 4,
+                        evidence: 'ผ่านการอบรม Lesson Design Workshop และได้นำไปใช้จริงในห้องเรียน'
+                    },
+                    {
+                        id: Date.now() + 1,
+                        name: 'Google Workspace for Education',
+                        category: 'เทคโนโลยี',
+                        level: 3,
+                        evidence: 'ใช้ Google Classroom, Forms, และ Slides ในการสอนประจำ'
+                    }
+                ];
+
+                localStorage.setItem('dataInitialized', 'true');
+                saveData();
+            }
+        }
+
+        // Update Stats
+        function updateStats() {
+            const totalHours = activities.reduce((sum, a) => sum + (a.hours || 0), 0);
+            document.getElementById('totalHours').textContent = totalHours;
+            document.getElementById('totalActivities').textContent = activities.length;
+            document.getElementById('totalGoals').textContent = goals.length;
+            document.getElementById('totalSkills').textContent = skills.length;
+        }
+
+        // Render All Sections
+        function renderAll() {
+            renderActivities();
+            renderGoals();
+            renderIdeas();
+            renderSkills();
+        }
+
+        // Render Activities
+        function renderActivities() {
+            const container = document.getElementById('activitiesList');
+            if (activities.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>ยังไม่มีกิจกรรมการพัฒนา<br>กดปุ่ม + เพื่อเพิ่มข้อมูล</p></div>';
+                return;
+            }
+
+            const sorted = [...activities].sort((a, b) => new Date(b.date) - new Date(a.date));
+            container.innerHTML = sorted.map(activity => `
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${activity.title}</div>
+                            <div class="card-date">${formatDate(activity.date)}</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteActivity(${activity.id})">×</button>
+                    </div>
+                    <div class="card-content">${activity.content}</div>
+                    <div class="card-meta">
+                        <span class="badge badge-primary">${activity.type}</span>
+                        <span class="badge badge-success">${activity.hours} ชั่วโมง</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Goals
+        function renderGoals() {
+            const container = document.getElementById('goalsList');
+            if (goals.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎯</div><p>ยังไม่มีเป้าหมายการพัฒนา<br>กดปุ่ม + เพื่อเพิ่มข้อมูล</p></div>';
+                return;
+            }
+
+            const sorted = [...goals].sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+            container.innerHTML = sorted.map(goal => `
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${goal.title}</div>
+                            <div class="card-date">กำหนดเสร็จ: ${formatDate(goal.dueDate)}</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteGoal(${goal.id})">×</button>
+                    </div>
+                    <div class="card-content">${goal.description}</div>
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>ความคืบหน้า</span>
+                            <span>${goal.progress}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${goal.progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge badge-warning">${goal.type}</span>
+                        <span class="status-badge ${goal.status === 'completed' ? 'status-completed' : 'status-ongoing'}">
+                            ${goal.status === 'completed' ? '✓ สำเร็จ' : '⏳ กำลังดำเนินการ'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Ideas
+        function renderIdeas() {
+            const container = document.getElementById('ideasList');
+            if (ideas.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💡</div><p>ยังไม่มีไอเดียและบันทึก<br>กดปุ่ม + เพื่อเพิ่มข้อมูล</p></div>';
+                return;
+            }
+
+            const sorted = [...ideas].sort((a, b) => new Date(b.date) - new Date(a.date));
+            container.innerHTML = sorted.map(idea => `
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${idea.title}</div>
+                            <div class="card-date">${formatDate(idea.date)}</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteIdea(${idea.id})">×</button>
+                    </div>
+                    <div class="card-content">${idea.content}</div>
+                    <div class="card-meta">
+                        <span class="badge badge-primary">${idea.type}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Skills
+        function renderSkills() {
+            const container = document.getElementById('skillsList');
+            if (skills.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⭐</div><p>ยังไม่มีทักษะและสมรรถนะ<br>กดปุ่ม + เพื่อเพิ่มข้อมูล</p></div>';
+                return;
+            }
+
+            const sorted = [...skills].sort((a, b) => b.level - a.level);
+            container.innerHTML = sorted.map(skill => `
+                <div class="card">
+                    <div class="card-header">
+                        <div style="flex: 1;">
+                            <div class="card-title">${skill.name}</div>
+                            <div class="skill-level">
+                                ${[1, 2, 3, 4, 5].map(i =>
+                                    `<span class="star ${i <= skill.level ? 'filled' : 'empty'}">★</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteSkill(${skill.id})">×</button>
+                    </div>
+                    <div class="card-content">${skill.evidence}</div>
+                    <div class="card-meta">
+                        <span class="badge badge-primary">${skill.category}</span>
+                        <span class="badge badge-warning">ระดับ ${skill.level}/5</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete Functions
+        function deleteActivity(id) {
+            if (confirm('คุณต้องการลบกิจกรรมนี้หรือไม่?')) {
+                activities = activities.filter(a => a.id !== id);
+                saveData();
+            }
+        }
+
+        function deleteGoal(id) {
+            if (confirm('คุณต้องการลบเป้าหมายนี้หรือไม่?')) {
+                goals = goals.filter(g => g.id !== id);
+                saveData();
+            }
+        }
+
+        function deleteIdea(id) {
+            if (confirm('คุณต้องการลบไอเดียนี้หรือไม่?')) {
+                ideas = ideas.filter(i => i.id !== id);
+                saveData();
+            }
+        }
+
+        function deleteSkill(id) {
+            if (confirm('คุณต้องการลบทักษะนี้หรือไม่?')) {
+                skills = skills.filter(s => s.id !== id);
+                saveData();
+            }
+        }
+
+        // Format Date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear() + 543}`;
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Tab Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const tab = this.dataset.tab;
+                    switchTab(tab);
+                });
+            });
+
+            // FAB Button
+            document.getElementById('fabBtn').addEventListener('click', openAddModal);
+        }
+
+        // Switch Tab
+        function switchTab(tab) {
+            currentTab = tab;
+
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.tab === tab) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Show/hide sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(tab + 'Section').classList.remove('hidden');
+        }
+
+        // Open Add Modal
+        function openAddModal() {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            let title = '';
+            let form = '';
+
+            switch(currentTab) {
+                case 'activities':
+                    title = 'เพิ่มกิจกรรมการพัฒนา';
+                    form = getActivityForm();
+                    break;
+                case 'goals':
+                    title = 'เพิ่มเป้าหมายการพัฒนา';
+                    form = getGoalForm();
+                    break;
+                case 'ideas':
+                    title = 'เพิ่มไอเดียและบันทึก';
+                    form = getIdeaForm();
+                    break;
+                case 'skills':
+                    title = 'เพิ่มทักษะและสมรรถนะ';
+                    form = getSkillForm();
+                    break;
+            }
+
+            modalTitle.textContent = title;
+            modalBody.innerHTML = form;
+            modal.classList.add('show');
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        // Activity Form
+        function getActivityForm() {
+            return `
+                <form onsubmit="saveActivity(event)">
+                    <div class="form-group">
+                        <label class="form-label">ชื่อกิจกรรม *</label>
+                        <input type="text" class="form-input" id="activityTitle" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">ประเภท *</label>
+                            <select class="form-select" id="activityType" required>
+                                <option value="อบรม">อบรม</option>
+                                <option value="สัมมนา">สัมมนา</option>
+                                <option value="ศึกษาดูงาน">ศึกษาดูงาน</option>
+                                <option value="PLC">PLC</option>
+                                <option value="อื่นๆ">อื่นๆ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">จำนวนชั่วโมง *</label>
+                            <input type="number" class="form-input" id="activityHours" min="0" step="0.5" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">วันที่ *</label>
+                        <input type="date" class="form-input" id="activityDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">เนื้อหา/สิ่งที่ได้เรียนรู้ *</label>
+                        <textarea class="form-textarea" id="activityContent" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                </form>
+            `;
+        }
+
+        // Goal Form
+        function getGoalForm() {
+            return `
+                <form onsubmit="saveGoal(event)">
+                    <div class="form-group">
+                        <label class="form-label">ชื่อเป้าหมาย *</label>
+                        <input type="text" class="form-input" id="goalTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ประเภท *</label>
+                        <select class="form-select" id="goalType" required>
+                            <option value="ระยะสั้น">ระยะสั้น (< 1 ปี)</option>
+                            <option value="ระยะยาว">ระยะยาว (> 1 ปี)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">รายละเอียดเป้าหมาย *</label>
+                        <textarea class="form-textarea" id="goalDescription" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">วันที่กำหนดเสร็จ *</label>
+                        <input type="date" class="form-input" id="goalDueDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ความคืบหน้า: <span id="progressValue">0</span>%</label>
+                        <input type="range" min="0" max="100" value="0" id="goalProgress" oninput="document.getElementById('progressValue').textContent = this.value">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">สถานะ *</label>
+                        <select class="form-select" id="goalStatus" required>
+                            <option value="ongoing">กำลังดำเนินการ</option>
+                            <option value="completed">สำเร็จแล้ว</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                </form>
+            `;
+        }
+
+        // Idea Form
+        function getIdeaForm() {
+            return `
+                <form onsubmit="saveIdea(event)">
+                    <div class="form-group">
+                        <label class="form-label">หัวข้อ *</label>
+                        <input type="text" class="form-input" id="ideaTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ประเภท *</label>
+                        <select class="form-select" id="ideaType" required>
+                            <option value="ไอเดียการสอน">ไอเดียการสอน</option>
+                            <option value="การสะท้อนตนเอง">การสะท้อนตนเอง</option>
+                            <option value="บันทึกทั่วไป">บันทึกทั่วไป</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">วันที่ *</label>
+                        <input type="date" class="form-input" id="ideaDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">เนื้อหา *</label>
+                        <textarea class="form-textarea" id="ideaContent" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                </form>
+            `;
+        }
+
+        // Skill Form
+        function getSkillForm() {
+            return `
+                <form onsubmit="saveSkill(event)">
+                    <div class="form-group">
+                        <label class="form-label">ชื่อทักษะ *</label>
+                        <input type="text" class="form-input" id="skillName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">หมวดหมู่ *</label>
+                        <select class="form-select" id="skillCategory" required>
+                            <option value="การสอน">การสอน</option>
+                            <option value="เทคโนโลยี">เทคโนโลยี</option>
+                            <option value="การบริหารจัดการ">การบริหารจัดการ</option>
+                            <option value="ภาษา">ภาษา</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ระดับความชำนาญ: <span id="levelValue">3</span>/5</label>
+                        <input type="range" min="1" max="5" value="3" id="skillLevel" oninput="document.getElementById('levelValue').textContent = this.value">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">หลักฐาน/รายละเอียดการพัฒนา *</label>
+                        <textarea class="form-textarea" id="skillEvidence" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                </form>
+            `;
+        }
+
+        // Save Activity
+        function saveActivity(e) {
+            e.preventDefault();
+            const activity = {
+                id: Date.now(),
+                title: document.getElementById('activityTitle').value,
+                type: document.getElementById('activityType').value,
+                hours: parseFloat(document.getElementById('activityHours').value),
+                date: document.getElementById('activityDate').value,
+                content: document.getElementById('activityContent').value
+            };
+            activities.push(activity);
+            saveData();
+            closeModal();
+        }
+
+        // Save Goal
+        function saveGoal(e) {
+            e.preventDefault();
+            const goal = {
+                id: Date.now(),
+                title: document.getElementById('goalTitle').value,
+                type: document.getElementById('goalType').value,
+                description: document.getElementById('goalDescription').value,
+                dueDate: document.getElementById('goalDueDate').value,
+                progress: parseInt(document.getElementById('goalProgress').value),
+                status: document.getElementById('goalStatus').value
+            };
+            goals.push(goal);
+            saveData();
+            closeModal();
+        }
+
+        // Save Idea
+        function saveIdea(e) {
+            e.preventDefault();
+            const idea = {
+                id: Date.now(),
+                title: document.getElementById('ideaTitle').value,
+                type: document.getElementById('ideaType').value,
+                date: document.getElementById('ideaDate').value,
+                content: document.getElementById('ideaContent').value
+            };
+            ideas.push(idea);
+            saveData();
+            closeModal();
+        }
+
+        // Save Skill
+        function saveSkill(e) {
+            e.preventDefault();
+            const skill = {
+                id: Date.now(),
+                name: document.getElementById('skillName').value,
+                category: document.getElementById('skillCategory').value,
+                level: parseInt(document.getElementById('skillLevel').value),
+                evidence: document.getElementById('skillEvidence').value
+            };
+            skills.push(skill);
+            saveData();
+            closeModal();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize app when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
