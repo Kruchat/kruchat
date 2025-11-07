@@ -12,6 +12,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
         * {
             margin: 0;
@@ -211,7 +214,7 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 14px;
             padding: 20px;
-            margin-top: -35px;
+            margin-top: 0;
             position: relative;
             z-index: 10;
         }
@@ -1494,16 +1497,21 @@
     <!-- Header -->
     <div class="header">
         <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
-            <div class="theme-toggle-slider">☀️</div>
+            <div class="theme-toggle-slider"><i data-lucide="sun" style="width: 16px; height: 16px;"></i></div>
         </div>
-        <h1>📚 การพัฒนาตนเองของครู</h1>
+        <h1 style="display: flex; align-items: center; gap: 10px;">
+            <i data-lucide="graduation-cap" style="width: 28px; height: 28px;"></i>
+            การพัฒนาตนเองของครู
+        </h1>
         <p>บันทึกและติดตามการพัฒนาอย่างเป็นระบบ</p>
         <div class="header-actions">
             <button class="export-btn" onclick="exportToPDF()">
-                <span>📄</span> Export PDF
+                <i data-lucide="file-text" style="width: 16px; height: 16px;"></i>
+                Export PDF
             </button>
             <button class="export-btn" onclick="exportToExcel()">
-                <span>📊</span> Export Excel
+                <i data-lucide="file-spreadsheet" style="width: 16px; height: 16px;"></i>
+                Export Excel
             </button>
         </div>
     </div>
@@ -1716,9 +1724,12 @@
 
             <div class="card" onclick="showNotifications()" style="cursor: pointer;">
                 <div class="card-header" style="position: relative;">
-                    <div>
-                        <div class="card-title">🔔 การแจ้งเตือน</div>
-                        <div class="card-date">ดูการแจ้งเตือนทั้งหมด</div>
+                    <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                        <i data-lucide="bell" style="width: 24px; height: 24px; color: var(--primary-color);"></i>
+                        <div>
+                            <div class="card-title">การแจ้งเตือน</div>
+                            <div class="card-date">ดูการแจ้งเตือนทั้งหมด</div>
+                        </div>
                     </div>
                     <span class="notification-badge hidden" id="notificationCount">0</span>
                 </div>
@@ -1726,18 +1737,24 @@
 
             <div class="card" onclick="showTagManager()" style="cursor: pointer;">
                 <div class="card-header">
-                    <div>
-                        <div class="card-title">🏷️ จัดการ Tag</div>
-                        <div class="card-date">จัดการและแก้ไข Tag ทั้งหมด</div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i data-lucide="tag" style="width: 24px; height: 24px; color: var(--primary-color);"></i>
+                        <div>
+                            <div class="card-title">จัดการ Tag</div>
+                            <div class="card-date">จัดการและแก้ไข Tag ทั้งหมด</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card" onclick="showSettings()" style="cursor: pointer;">
                 <div class="card-header">
-                    <div>
-                        <div class="card-title">⚙️ ตั้งค่า</div>
-                        <div class="card-date">ตั้งค่าการแจ้งเตือนและอื่นๆ</div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i data-lucide="settings" style="width: 24px; height: 24px; color: var(--primary-color);"></i>
+                        <div>
+                            <div class="card-title">ตั้งค่า</div>
+                            <div class="card-date">ตั้งค่าการแจ้งเตือนและอื่นๆ</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1815,27 +1832,27 @@
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
         <button class="nav-item active" data-tab="dashboard">
-            <div class="nav-icon">📊</div>
+            <div class="nav-icon"><i data-lucide="layout-dashboard"></i></div>
             <div class="nav-label">Dashboard</div>
         </button>
         <button class="nav-item" data-tab="activities">
-            <div class="nav-icon">📖</div>
+            <div class="nav-icon"><i data-lucide="book-open"></i></div>
             <div class="nav-label">กิจกรรม</div>
         </button>
         <button class="nav-item" data-tab="goals">
-            <div class="nav-icon">🎯</div>
+            <div class="nav-icon"><i data-lucide="target"></i></div>
             <div class="nav-label">เป้าหมาย</div>
         </button>
         <button class="nav-item" data-tab="ideas">
-            <div class="nav-icon">💡</div>
+            <div class="nav-icon"><i data-lucide="lightbulb"></i></div>
             <div class="nav-label">ไอเดีย</div>
         </button>
         <button class="nav-item" data-tab="skills">
-            <div class="nav-icon">⭐</div>
+            <div class="nav-icon"><i data-lucide="star"></i></div>
             <div class="nav-label">ทักษะ</div>
         </button>
         <button class="nav-item" data-tab="more" style="position: relative;">
-            <div class="nav-icon">⚙️</div>
+            <div class="nav-icon"><i data-lucide="menu"></i></div>
             <div class="nav-label">เพิ่มเติม</div>
             <span class="notification-dot hidden" id="moreBadge"></span>
         </button>
@@ -1896,6 +1913,11 @@
             renderAll();
             setupEventListeners();
             checkStorageUsage();
+
+            // Initialize Lucide Icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         // Load data from localStorage
@@ -1926,7 +1948,7 @@
             if (isDark) {
                 document.body.classList.add('dark-mode');
                 document.getElementById('themeToggle').classList.add('dark');
-                document.querySelector('.theme-toggle-slider').textContent = '🌙';
+                document.querySelector('.theme-toggle-slider').innerHTML = '<i data-lucide="moon" style="width: 16px; height: 16px;"></i>';
                 const darkModeToggle = document.getElementById('darkModeToggle');
                 if (darkModeToggle) darkModeToggle.classList.add('active');
             }
@@ -1957,15 +1979,20 @@
 
             if (isDark) {
                 toggle.classList.add('dark');
-                slider.textContent = '🌙';
+                slider.innerHTML = '<i data-lucide="moon" style="width: 16px; height: 16px;"></i>';
                 if (darkModeToggle) darkModeToggle.classList.add('active');
             } else {
                 toggle.classList.remove('dark');
-                slider.textContent = '☀️';
+                slider.innerHTML = '<i data-lucide="sun" style="width: 16px; height: 16px;"></i>';
                 if (darkModeToggle) darkModeToggle.classList.remove('active');
             }
 
             localStorage.setItem('darkMode', isDark);
+
+            // Reinitialize icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         // Toggle notification settings
@@ -2296,7 +2323,8 @@
             if (!container) return;
 
             if (notifications.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔔</div><p>ไม่มีการแจ้งเตือน</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="bell" style="width: 48px; height: 48px;"></i></div><p>ไม่มีการแจ้งเตือน</p></div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
@@ -2346,7 +2374,8 @@
             if (!container) return;
 
             if (allTags.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏷️</div><p>ยังไม่มี Tag</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="tag" style="width: 48px; height: 48px;"></i></div><p>ยังไม่มี Tag</p></div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
@@ -2415,6 +2444,11 @@
             renderGoals();
             renderIdeas();
             renderSkills();
+
+            // Reinitialize Lucide icons after rendering
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         // Check localStorage usage
@@ -2647,7 +2681,8 @@
             const recent = [...activities].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
             if (recent.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>ยังไม่มีกิจกรรม</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="calendar-x" style="width: 48px; height: 48px;"></i></div><p>ยังไม่มีกิจกรรม</p></div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
@@ -2808,7 +2843,8 @@
             countContainer.textContent = `แสดง ${filtered.length} จาก ${activities.length} รายการ`;
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>ไม่พบกิจกรรมที่ค้นหา</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="search-x" style="width: 48px; height: 48px;"></i></div><p>ไม่พบกิจกรรมที่ค้นหา</p></div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
@@ -2846,7 +2882,8 @@
             countContainer.textContent = `แสดง ${filtered.length} จาก ${goals.length} รายการ`;
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎯</div><p>ไม่พบเป้าหมายที่ค้นหา</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="search-x" style="width: 48px; height: 48px;"></i></div><p>ไม่พบเป้าหมายที่ค้นหา</p></div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
@@ -2894,7 +2931,8 @@
             countContainer.textContent = `แสดง ${filtered.length} จาก ${ideas.length} รายการ`;
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💡</div><p>ไม่พบไอเดียที่ค้นหา</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="search-x" style="width: 48px; height: 48px;"></i></div><p>ไม่พบไอเดียที่ค้นหา</p></div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
@@ -2930,7 +2968,8 @@
             countContainer.textContent = `แสดง ${filtered.length} จาก ${skills.length} รายการ`;
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⭐</div><p>ไม่พบทักษะที่ค้นหา</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="search-x" style="width: 48px; height: 48px;"></i></div><p>ไม่พบทักษะที่ค้นหา</p></div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
